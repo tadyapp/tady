@@ -8,7 +8,8 @@
     "build": "tsc && vite build",
     "preview": "vite preview",
     "format": "npx prettier . --write",
-    "lint": "npx eslint"
+    "lint": "npx eslint",
+    "analyze": "npx vite-bundle-visualizer"
   },
   "dependencies": {
     "@lit-labs/router": "^0.1.4",
@@ -32,6 +33,7 @@
     "typescript": "~5.9.3",
     "typescript-eslint": "^8.54.0",
     "vite": "^7.2.4",
+    "vite-bundle-visualizer": "^1.2.1",
     "vite-plugin-pwa": "^1.2.0"
   }
 }
