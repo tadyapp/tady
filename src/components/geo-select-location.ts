@@ -12,6 +12,8 @@ export class GeoSelectLocation extends SignalWatcher(LitElement) {
   private _latitude?: number
   @state()
   private _longitude?: number
+  @state()
+  private _geolocationPositionError?: GeolocationPositionError
 
   #onLatitudeChange(e: InputEvent) {
     const target = e.target as HTMLInputElement
@@ -41,7 +43,8 @@ export class GeoSelectLocation extends SignalWatcher(LitElement) {
         )
       },
       error => {
-        console.log(error.message)
+        this._geolocationPositionError = error
+        locationAuto.set(undefined)
       },
     )
   }
@@ -84,7 +87,9 @@ export class GeoSelectLocation extends SignalWatcher(LitElement) {
         : undefined
 
     return html`
-      <div>auto: ${locationAuto.get()}</div>
+      <div>
+        auto: ${locationAuto.get()} ${this._geolocationPositionError?.message}
+      </div>
       <div>manual: ${locationSelected.get()}</div>
       <div>
         <label>latitude</label>
