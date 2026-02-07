@@ -1,5 +1,5 @@
 import { VitePWA } from 'vite-plugin-pwa'
 
 export default {
-  plugins: [VitePWA()],
+  plugins: [VitePWA({ registerType: 'autoUpdate' })],
 }
