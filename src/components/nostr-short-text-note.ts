@@ -1,14 +1,21 @@
 import type { NDKEvent, NDKUserProfile } from '@nostr-dev-kit/ndk'
+import { LatLng } from 'leaflet'
 import { css, html, LitElement, type PropertyValues } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
 import { ifDefined } from 'lit/directives/if-defined.js'
+import ngeohash from 'ngeohash'
+import './geo-direction.js'
+import { errorInDegreesToMeters, formatDistance } from './geo-direction.js'
 import './nostr-content.js'
 import './nostr-social.js'
 
 @customElement('nostr-short-text-note')
 export class NostrShortTextNote extends LitElement {
-  @property({ type: Object })
+  @property({ attribute: false })
   nostrEvent!: NDKEvent
+
+  @property({ attribute: false })
+  origin: LatLng[] = []
 
   @state()
   private _author: NDKUserProfile | null = null
@@ -20,6 +27,19 @@ export class NostrShortTextNote extends LitElement {
   }
 
   render() {
+    const geohash = this.nostrEvent.tags
+      .filter(tag => tag[0] === 'g')
+      .map(tag => tag[1])
+      .filter(g => Boolean(g))
+      .sort((a, b) => a.length - b.length)
+      .pop()
+
+    const loc = geohash ? ngeohash.decode(geohash) : undefined
+    const dest = loc ? new LatLng(loc.latitude, loc.longitude) : undefined
+    const locError = loc ? errorInDegreesToMeters(loc) : undefined
+    const precision =
+      locError && (locError.latitude ** 2 + locError.longitude ** 2) ** 0.5
+
     return html`<div class="note">
       <div class="avatar-panel">
         <img class="avatar" src=${ifDefined(this._author?.picture)} />
@@ -34,6 +54,16 @@ export class NostrShortTextNote extends LitElement {
                   dateStyle: 'medium',
                 }).format(this.nostrEvent.created_at * 1000)}
               </span>`
+            : null}
+        </div>
+        <div>
+          ${this.origin.map(
+            o => html`
+              <geo-direction .origin=${o} .dest=${dest}></geo-direction>
+            `,
+          )}
+          ${typeof precision === 'number'
+            ? html`<span>&plusmn; ${formatDistance(precision)}</span>`
             : null}
         </div>
         <div class="content">

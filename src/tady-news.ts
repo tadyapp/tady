@@ -1,5 +1,5 @@
 import type { NDKEvent, NDKSubscription } from '@nostr-dev-kit/ndk'
-import type { LatLng } from 'leaflet'
+import { LatLng } from 'leaflet'
 import { css, html, LitElement, type PropertyValues } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
 import { repeat } from 'lit/directives/repeat.js'
@@ -42,6 +42,11 @@ export class TadyNews extends LitElement {
   }
 
   render() {
+    const origin: LatLng[] = []
+
+    if (this.locationSelected) origin.push(this.locationSelected)
+    if (this.locationAuto) origin.push(this.locationAuto)
+
     return html`<div>News ${this.locationSelected ?? this.locationAuto}</div>
       <ul class="list">
         ${repeat(
@@ -51,6 +56,7 @@ export class TadyNews extends LitElement {
             <li>
               <nostr-short-text-note
                 .nostrEvent=${event}
+                .origin=${origin}
               ></nostr-short-text-note>
             </li>
           `,
