@@ -29,6 +29,15 @@ export class TadyLayout extends LitElement {
       gap: 1rem;
       margin-bottom: 1rem;
     }
+
+    .header nav {
+      display: flex;
+      gap: 1rem;
+    }
+
+    .header nav a {
+      font-size: 2rem;
+    }
   `
 }
 

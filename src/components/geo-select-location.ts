@@ -1,4 +1,4 @@
-import { SignalWatcher } from '@lit-labs/signals'
+import { SignalWatcher, watch } from '@lit-labs/signals'
 import { LatLng } from 'leaflet'
 import { html, LitElement, type PropertyValues } from 'lit'
 import { customElement, state } from 'lit/decorators.js'
@@ -21,6 +21,35 @@ export class GeoSelectLocation extends SignalWatcher(LitElement) {
   #onLongitudeChange(e: InputEvent) {
     const target = e.target as HTMLInputElement
     this._longitude = target.value ? +target.value : undefined
+  }
+
+  // geolocation watch id
+  private _watchId?: number
+
+  connectedCallback(): void {
+    super.connectedCallback()
+    /* geolocation */
+    this._watchId = navigator.geolocation.watchPosition(
+      position => {
+        // TODO there is also direction, timestamp, precision etc
+        locationAuto.set(
+          new LatLng(
+            position.coords.latitude,
+            position.coords.longitude,
+            position.coords.altitude ?? undefined,
+          ),
+        )
+      },
+      error => {
+        console.log(error.message)
+      },
+    )
+  }
+
+  disconnectedCallback(): void {
+    super.disconnectedCallback()
+    if (typeof this._watchId === 'number')
+      navigator.geolocation.clearWatch(this._watchId)
   }
 
   protected willUpdate(_changedProperties: PropertyValues): void {
@@ -75,6 +104,7 @@ export class GeoSelectLocation extends SignalWatcher(LitElement) {
       </div>
       <leaflet-select-location
         .location=${location}
+        .locationAuto=${watch(locationAuto)}
         .onSelectLocation=${this._handleSelectLocation}
       ></leaflet-select-location>
     `

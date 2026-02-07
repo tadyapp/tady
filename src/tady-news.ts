@@ -23,16 +23,11 @@ export class TadyNews extends LitElement {
     if (_changedProperties.has('locationSelected')) {
       this._events = []
 
-      if (this.locationSelected) {
+      const coord = this.locationSelected ?? this.locationAuto
+      if (coord) {
         const geohashes = Array.from(
-          getRelevantGeohashes({
-            coord: this.locationSelected,
-            precision: 4,
-            rings: 1,
-          }),
+          getRelevantGeohashes({ coord, precision: 4, rings: 1 }),
         )
-
-        console.log(geohashes, '////')
 
         this._subscription?.stop()
         this._subscription = ndk.subscribe(
@@ -47,7 +42,7 @@ export class TadyNews extends LitElement {
   }
 
   render() {
-    return html`<div>News ${this.locationSelected}</div>
+    return html`<div>News ${this.locationSelected ?? this.locationAuto}</div>
       <ul class="list">
         ${repeat(
           this._events,

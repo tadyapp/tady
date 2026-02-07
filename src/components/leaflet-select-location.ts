@@ -1,13 +1,14 @@
 import 'leaflet'
 import {
   LatLng,
-  Map,
   map,
   marker,
-  Marker,
   polygon,
-  Polygon,
   tileLayer,
+  type Map,
+  type Marker,
+  type MarkerOptions,
+  type Polygon,
 } from 'leaflet'
 import leafletStyles from 'leaflet/dist/leaflet.css?inline'
 import { css, html, LitElement, unsafeCSS, type PropertyValues } from 'lit'
@@ -19,6 +20,9 @@ import './leaflet-icon-setup.js'
 export class LeafletSelectLocation extends LitElement {
   @property({ attribute: false })
   location?: LatLng
+
+  @property({ attribute: false })
+  locationAuto?: LatLng
 
   @property({ type: Number })
   precision = 4
@@ -35,8 +39,28 @@ export class LeafletSelectLocation extends LitElement {
   @state()
   private _map: Map | null = null
 
-  private _marker: Marker | null = null
+  private _markers = new globalThis.Map<string, Marker>()
   private _polygons: Polygon[] = []
+
+  private _updateMarker(
+    key: string,
+    loc: LatLng | undefined,
+    options?: MarkerOptions,
+  ) {
+    if (!this._map) return
+
+    if (loc) {
+      let m = this._markers.get(key)
+      if (!m) {
+        m = marker(loc, options).addTo(this._map)
+        this._markers.set(key, m)
+      }
+      m.setLatLng(loc)
+    } else {
+      this._markers.get(key)?.remove()
+      this._markers.delete(key)
+    }
+  }
 
   firstUpdated() {
     this._map = map(this._mapEl)
@@ -60,32 +84,30 @@ export class LeafletSelectLocation extends LitElement {
   protected willUpdate(_changedProperties: PropertyValues) {
     // move marker when location changes
     if (_changedProperties.has('_map') || _changedProperties.has('location')) {
-      if (this._map) {
-        if (this.location) {
-          if (!this._marker) {
-            this._marker = marker(this.location).addTo(this._map)
-          }
+      this._updateMarker('location', this.location)
+    }
 
-          this._marker.setLatLng(this.location)
-          this._map.setView(this.location)
-        } else {
-          this._marker?.remove()
-          this._marker = null
-        }
-      }
+    // move marker when auto location changes
+    if (
+      _changedProperties.has('_map') ||
+      _changedProperties.has('locationAuto')
+    ) {
+      this._updateMarker('locationAuto', this.locationAuto)
     }
 
     if (
       _changedProperties.has('_map') ||
       _changedProperties.has('location') ||
+      _changedProperties.has('locationAuto') ||
       _changedProperties.has('precision') ||
       _changedProperties.has('rings')
     ) {
-      if (this._map && this.location && this.precision && this.rings) {
+      const coord = this.location ?? this.locationAuto
+      if (this._map && coord && this.precision && this.rings) {
         this._polygons.forEach(p => p.remove())
         this._polygons = []
         const geohashes = getRelevantGeohashes({
-          coord: this.location,
+          coord,
           precision: this.precision,
           rings: this.rings,
         })
@@ -103,7 +125,7 @@ export class LeafletSelectLocation extends LitElement {
         }
       }
 
-      if (!this.location) {
+      if (!coord) {
         this._polygons.forEach(p => p.remove())
         this._polygons = []
       }
