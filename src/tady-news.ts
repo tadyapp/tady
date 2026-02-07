@@ -71,6 +71,7 @@ export class TadyNews extends LitElement {
       padding: 0;
       display: flex;
       flex-direction: column;
+      align-items: stretch;
       gap: 1rem;
     }
   `

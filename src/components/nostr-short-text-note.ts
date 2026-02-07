@@ -7,6 +7,7 @@ import ngeohash from 'ngeohash'
 import './geo-direction.js'
 import { errorInDegreesToMeters, formatDistance } from './geo-direction.js'
 import './nostr-content.js'
+import './nostr-event-preview-raw.js'
 import './nostr-social.js'
 
 @customElement('nostr-short-text-note')
@@ -45,27 +46,36 @@ export class NostrShortTextNote extends LitElement {
         <img class="avatar" src=${ifDefined(this._author?.picture)} />
       </div>
       <div class="content-panel">
-        <div>
-          <span class="name">${this._author?.displayName}</span>
-          <span>${this._author?.nip05}</span>
-          ${this.nostrEvent.created_at
-            ? html`<span>
-                ${new Intl.DateTimeFormat('en', {
-                  dateStyle: 'medium',
-                }).format(this.nostrEvent.created_at * 1000)}
-              </span>`
-            : null}
-        </div>
-        <div>
-          ${this.origin.map(
-            o => html`
-              <geo-direction .origin=${o} .dest=${dest}></geo-direction>
-            `,
-          )}
-          ${typeof precision === 'number'
-            ? html`<span>&plusmn; ${formatDistance(precision)}</span>`
-            : null}
-        </div>
+        <header>
+          <div class="top-wrapper">
+            <div class="meta">
+              <span class="name">${this._author?.displayName}</span>
+              <span>${this._author?.nip05}</span>
+              ${this.nostrEvent.created_at
+                ? html`<span>
+                    ${new Intl.DateTimeFormat('en', {
+                      dateStyle: 'medium',
+                    }).format(this.nostrEvent.created_at * 1000)}
+                  </span>`
+                : null}
+            </div>
+            <div class="tools">
+              <nostr-event-preview-raw
+                .event=${this.nostrEvent}
+              ></nostr-event-preview-raw>
+            </div>
+          </div>
+          <div>
+            ${this.origin.map(
+              o => html`
+                <geo-direction .origin=${o} .dest=${dest}></geo-direction>
+              `,
+            )}
+            ${typeof precision === 'number'
+              ? html`<span>&plusmn; ${formatDistance(precision)}</span>`
+              : null}
+          </div>
+        </header>
         <div class="content">
           <nostr-content .event=${this.nostrEvent}></nostr-content>
           <nostr-social eventId=${this.nostrEvent.id}></nostr-social>
@@ -78,6 +88,8 @@ export class NostrShortTextNote extends LitElement {
     .note {
       display: flex;
       gap: 0.5rem;
+      border-top: 1px solid var(--text-color);
+      padding-top: 0.5rem;
     }
 
     .avatar-panel {
@@ -87,6 +99,7 @@ export class NostrShortTextNote extends LitElement {
     .content-panel {
       min-width: 0;
       overflow-wrap: break-word;
+      flex: 1;
     }
 
     .avatar {
@@ -98,6 +111,13 @@ export class NostrShortTextNote extends LitElement {
 
     .name {
       font-weight: bold;
+    }
+
+    .top-wrapper {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: flex-start;
     }
   `
 }
