@@ -26,7 +26,7 @@ export class TadyRouter extends SignalWatcher(LitElement) {
       path: '/news',
       render: () =>
         html`<tady-news
-          locationSelected=${watch(locationSelected)}
+          .locationSelected=${watch(locationSelected)}
         ></tady-news>`,
     },
     {

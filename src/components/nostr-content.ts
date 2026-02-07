@@ -133,5 +133,9 @@ export class NostrUserMention extends LitElement {
       white-space: normal;
       font-weight: bold;
     }
+
+    .mention img {
+      height: 1rem;
+    }
   `
 }

@@ -1,25 +1,26 @@
 import { SignalWatcher } from '@lit-labs/signals'
+import { LatLng } from 'leaflet'
 import { html, LitElement, type PropertyValues } from 'lit'
 import { customElement, state } from 'lit/decorators.js'
 import { ifDefined } from 'lit/directives/if-defined.js'
-import geohash from 'ngeohash'
 import { locationAuto, locationSelected } from '../data/location'
+import './leaflet-select-location.js'
 
 @customElement('geo-select-location')
 export class GeoSelectLocation extends SignalWatcher(LitElement) {
   @state()
-  private _latitude: number | undefined = 1
+  private _latitude?: number
   @state()
-  private _longitude: number | undefined = 1
+  private _longitude?: number
 
   #onLatitudeChange(e: InputEvent) {
     const target = e.target as HTMLInputElement
-    this._latitude = +target.value
+    this._latitude = target.value ? +target.value : undefined
   }
 
   #onLongitudeChange(e: InputEvent) {
     const target = e.target as HTMLInputElement
-    this._longitude = +target.value
+    this._longitude = target.value ? +target.value : undefined
   }
 
   protected willUpdate(_changedProperties: PropertyValues): void {
@@ -33,15 +34,28 @@ export class GeoSelectLocation extends SignalWatcher(LitElement) {
         isNaN(this._latitude) ||
         isNaN(this._longitude)
       ) {
-        locationSelected.set('')
+        locationSelected.set(undefined)
       } else {
-        locationSelected.set(geohash.encode(this._latitude, this._longitude))
+        locationSelected.set(new LatLng(this._latitude, this._longitude))
       }
     }
   }
 
+  private _handleSelectLocation = (latlng: LatLng) => {
+    this._latitude = latlng.lat
+    this._longitude = latlng.lng
+  }
+
   render() {
-    return html` <div>auto: ${locationAuto.get()}</div>
+    const location =
+      typeof this._latitude === 'number' &&
+      typeof this._longitude === 'number' &&
+      !isNaN(this._latitude + this._longitude)
+        ? new LatLng(this._latitude, this._longitude)
+        : undefined
+
+    return html`
+      <div>auto: ${locationAuto.get()}</div>
       <div>manual: ${locationSelected.get()}</div>
       <div>
         <label>latitude</label>
@@ -58,7 +72,12 @@ export class GeoSelectLocation extends SignalWatcher(LitElement) {
           @input=${this.#onLongitudeChange}
           value=${ifDefined(this._longitude)}
         />
-      </div>`
+      </div>
+      <leaflet-select-location
+        .location=${location}
+        .onSelectLocation=${this._handleSelectLocation}
+      ></leaflet-select-location>
+    `
   }
 }
 

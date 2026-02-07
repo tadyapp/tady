@@ -61,7 +61,7 @@ export class NostrSocial extends LitElement {
 
     const replies = html`
       ${repeat(
-        this._replies,
+        [...this._replies].reverse(),
         reply => reply.id,
         reply =>
           html`<nostr-short-text-note
