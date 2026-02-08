@@ -1,9 +1,10 @@
-import type { NDKEvent, NDKUser, NDKUserProfile } from '@nostr-dev-kit/ndk'
+import type { NDKEvent } from '@nostr-dev-kit/ndk'
 import { FragmentType, transformText, type ParsedFragment } from '@snort/system'
-import { css, html, LitElement, type PropertyValues } from 'lit'
-import { customElement, property, state } from 'lit/decorators.js'
+import { css, html, LitElement } from 'lit'
+import { customElement, property } from 'lit/decorators.js'
 import { ifDefined } from 'lit/directives/if-defined.js'
-import { ndk } from '../data/ndk'
+import './nostr-invoice.js'
+import './nostr-mention.js'
 
 @customElement('nostr-content')
 export class NostrContent extends LitElement {
@@ -69,9 +70,14 @@ export class SnortFragment extends LitElement {
         >`
       }
       case FragmentType.Mention: {
-        return html`<nostr-user-mention
+        return html`<nostr-mention
           identifier=${this.fragment.content}
-        ></nostr-user-mention>`
+        ></nostr-mention>`
+      }
+      case FragmentType.Invoice: {
+        return html`<nostr-invoice
+          invoice=${this.fragment.content}
+        ></nostr-invoice>`
       }
       default: {
         return html`<pre>${JSON.stringify(this.fragment, null, 2)}</pre>`
@@ -95,47 +101,6 @@ export class SnortFragment extends LitElement {
     }
     .hashtag {
       color: lightblue;
-    }
-  `
-}
-
-@customElement('nostr-user-mention')
-export class NostrUserMention extends LitElement {
-  @property()
-  identifier!: string
-
-  @state()
-  _user: NDKUser | null = null
-  @state()
-  _profile: NDKUserProfile | null = null
-
-  protected async willUpdate(_changedProperties: PropertyValues) {
-    if (_changedProperties.has('identifier')) {
-      this._user = (await ndk.fetchUser(this.identifier.slice(6))) ?? null
-      const profile = await this._user?.fetchProfile()
-      this._profile = profile ?? null
-    }
-  }
-
-  render() {
-    return html`<span class="mention"
-      >${this._profile?.picture
-        ? html`<img src=${this._profile.picture} />`
-        : null}
-      ${this._profile?.displayName ??
-      this._user?.npub ??
-      this.identifier.slice(6, 20)}</span
-    >`
-  }
-
-  static styles = css`
-    .mention {
-      white-space: normal;
-      font-weight: bold;
-    }
-
-    .mention img {
-      height: 1rem;
     }
   `
 }

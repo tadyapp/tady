@@ -2,10 +2,10 @@ import type { NDKEvent, NDKUserProfile } from '@nostr-dev-kit/ndk'
 import { LatLng } from 'leaflet'
 import { css, html, LitElement, type PropertyValues } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
-import { ifDefined } from 'lit/directives/if-defined.js'
 import ngeohash from 'ngeohash'
 import './geo-direction.js'
 import { errorInDegreesToMeters, formatDistance } from './geo-direction.js'
+import './nostr-avatar.js'
 import './nostr-content.js'
 import './nostr-event-preview-raw.js'
 import './nostr-social.js'
@@ -43,7 +43,7 @@ export class NostrShortTextNote extends LitElement {
 
     return html`<div class="note">
       <div class="avatar-panel">
-        <img class="avatar" src=${ifDefined(this._author?.picture)} />
+        <nostr-avatar .profile=${this._author}></nostr-avatar>
       </div>
       <div class="content-panel">
         <header>
@@ -107,6 +107,10 @@ export class NostrShortTextNote extends LitElement {
       min-height: 2.5rem;
       max-height: 3rem;
       object-fit: cover;
+    }
+
+    nostr-avatar {
+      --avatar-size: 2.5rem;
     }
 
     .name {
