@@ -58,22 +58,22 @@ export class NostrShortTextNote extends LitElement {
                     }).format(this.nostrEvent.created_at * 1000)}
                   </span>`
                 : null}
+              <div>
+                ${this.origin.map(
+                  o => html`
+                    <geo-direction .origin=${o} .dest=${dest}></geo-direction>
+                  `,
+                )}
+                ${typeof precision === 'number'
+                  ? html`<span>&plusmn; ${formatDistance(precision)}</span>`
+                  : null}
+              </div>
             </div>
             <div class="tools">
               <nostr-event-preview-raw
                 .event=${this.nostrEvent}
               ></nostr-event-preview-raw>
             </div>
-          </div>
-          <div>
-            ${this.origin.map(
-              o => html`
-                <geo-direction .origin=${o} .dest=${dest}></geo-direction>
-              `,
-            )}
-            ${typeof precision === 'number'
-              ? html`<span>&plusmn; ${formatDistance(precision)}</span>`
-              : null}
           </div>
         </header>
         <div class="content">
@@ -119,9 +119,14 @@ export class NostrShortTextNote extends LitElement {
 
     .top-wrapper {
       display: flex;
-      flex-wrap: wrap;
       justify-content: space-between;
       align-items: flex-start;
+    }
+
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
     }
   `
 }
