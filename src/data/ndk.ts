@@ -6,4 +6,11 @@ export const ndk = new NDK({
   explicitRelayUrls: ['wss://nos.lol'],
 })
 
-await ndk.connect()
+ndk
+  .connect()
+  .catch(err =>
+    console.warn(
+      `ndk connection failed: ${err instanceof Error ? err.message : err} Continuing in offline mode.`,
+      err,
+    ),
+  )
