@@ -1,10 +1,16 @@
 import 'leaflet'
 import {
+  canvas,
+  CircleMarker,
+  circleMarker,
+  latLng,
   LatLng,
+  LatLngBounds,
   map,
   marker,
   polygon,
   tileLayer,
+  type LatLngExpression,
   type Map,
   type Marker,
   type MarkerOptions,
@@ -13,7 +19,7 @@ import {
 import leafletStyles from 'leaflet/dist/leaflet.css?inline'
 import { css, html, LitElement, unsafeCSS, type PropertyValues } from 'lit'
 import { customElement, property, query, state } from 'lit/decorators.js'
-import geohash from 'ngeohash'
+import ngeohash from 'ngeohash'
 import './leaflet-icon-setup.js'
 
 @customElement('leaflet-select-location')
@@ -29,6 +35,11 @@ export class LeafletSelectLocation extends LitElement {
 
   @property({ type: Number })
   rings = 1
+
+  @property({ attribute: false })
+  onBoundsChange?: (bounds: LatLngBounds, zoom: number) => unknown
+  @property({ type: Array })
+  places: Array<{ id: string; geohash: string }> = []
 
   @property()
   onSelectLocation?: (location: LatLng) => unknown
@@ -62,10 +73,22 @@ export class LeafletSelectLocation extends LitElement {
     }
   }
 
+  private _canvasRenderer = canvas()
+
+  disconnectedCallback(): void {
+    // cleanup
+    super.disconnectedCallback()
+    this._map?.remove()
+    this._map = null
+  }
+
   firstUpdated() {
     this._map = map(this._mapEl)
       .setView([50, 15], 5)
       .addLayer(tileLayer('https://{s}.tile.osm.org/{z}/{x}/{y}.png'))
+
+    this.onBoundsChange?.(this._map.getBounds(), this._map.getZoom())
+
     this._map.on('click', e => {
       const latlng = e.latlng.clone()
       latlng.lng = normalizeLng(latlng.lng)
@@ -79,9 +102,17 @@ export class LeafletSelectLocation extends LitElement {
         this._map.setView([lat, nlng], this._map.getZoom(), { animate: false })
       }
     })
+    this._map.on('moveend', () => {
+      if (!this._map) return
+      this.onBoundsChange?.(this._map.getBounds(), this._map.getZoom())
+    })
   }
 
   protected willUpdate(_changedProperties: PropertyValues) {
+    if (_changedProperties.has('places')) {
+      this.#showSecondaryPlaces()
+    }
+
     // move marker when location changes
     if (_changedProperties.has('_map') || _changedProperties.has('location')) {
       this._updateMarker('location', this.location)
@@ -95,6 +126,7 @@ export class LeafletSelectLocation extends LitElement {
       this._updateMarker('locationAuto', this.locationAuto)
     }
 
+    // show polygon
     if (
       _changedProperties.has('_map') ||
       _changedProperties.has('location') ||
@@ -113,14 +145,11 @@ export class LeafletSelectLocation extends LitElement {
         })
 
         for (const gh of geohashes) {
-          const [lat0, lng0, lat1, lng1] = geohash.decode_bbox(gh)
           this._polygons.push(
-            polygon([
-              [lat0, lng0],
-              [lat0, lng1],
-              [lat1, lng1],
-              [lat1, lng0],
-            ]).addTo(this._map),
+            polygon(geohash2polygon(gh), {
+              stroke: false,
+              fillOpacity: 0.4,
+            }).addTo(this._map),
           )
         }
       }
@@ -129,6 +158,29 @@ export class LeafletSelectLocation extends LitElement {
         this._polygons.forEach(p => p.remove())
         this._polygons = []
       }
+    }
+  }
+
+  #circleMarkers: CircleMarker[] = []
+
+  #showSecondaryPlaces() {
+    if (!this._map) return
+
+    this.#circleMarkers.forEach(poly => poly.remove())
+    this.#circleMarkers = []
+    for (const place of this.places) {
+      // if (place.geohash.length < 4) continue
+      const decoded = ngeohash.decode(place.geohash)
+      const coords = latLng(decoded.latitude, decoded.longitude)
+      this.#circleMarkers.push(
+        circleMarker(/*geohash2polygon(place.geohash)*/ coords, {
+          renderer: this._canvasRenderer,
+          stroke: false,
+          radius: 5,
+          fillColor: '#E93C35',
+          fillOpacity: 0.3,
+        }).addTo(this._map),
+      )
     }
   }
 
@@ -162,12 +214,12 @@ export const getRelevantGeohashes = ({
   rings: number
 }) => {
   const geohashes = new Set<string>()
-  geohashes.add(geohash.encode(coord.lat, coord.lng, precision))
+  geohashes.add(ngeohash.encode(coord.lat, coord.lng, precision))
 
   for (let i = 0, len = rings; i < len; ++i) {
     const nextghs = new Set<string>()
     for (const h of geohashes) {
-      for (const n of geohash.neighbors(h)) {
+      for (const n of ngeohash.neighbors(h)) {
         nextghs.add(n)
       }
     }
@@ -180,3 +232,13 @@ export const getRelevantGeohashes = ({
 }
 
 const normalizeLng = (lng: number) => (((lng % 360) - 180 * 3) % 360) + 180
+
+const geohash2polygon = (gh: string): LatLngExpression[] => {
+  const [lat0, lng0, lat1, lng1] = ngeohash.decode_bbox(gh)
+  return [
+    [lat0, lng0],
+    [lat0, lng1],
+    [lat1, lng1],
+    [lat1, lng0],
+  ]
+}

@@ -1,7 +1,7 @@
 import { SignalWatcher, watch } from '@lit-labs/signals'
-import { LatLng } from 'leaflet'
+import { LatLng, LatLngBounds } from 'leaflet'
 import { html, LitElement, type PropertyValues } from 'lit'
-import { customElement, state } from 'lit/decorators.js'
+import { customElement, property, state } from 'lit/decorators.js'
 import { ifDefined } from 'lit/directives/if-defined.js'
 import { locationAuto, locationSelected } from '../data/location'
 import './leaflet-select-location.js'
@@ -14,6 +14,10 @@ export class GeoSelectLocation extends SignalWatcher(LitElement) {
   private _longitude?: number
   @state()
   private _geolocationPositionError?: GeolocationPositionError
+  @property({ attribute: false })
+  onBoundsChange?: (bounds: LatLngBounds, zoom: number) => unknown
+  @property({ type: Array })
+  places: Array<{ id: string; geohash: string }> = []
 
   #onLatitudeChange(e: InputEvent) {
     const target = e.target as HTMLInputElement
@@ -111,7 +115,9 @@ export class GeoSelectLocation extends SignalWatcher(LitElement) {
         .location=${location}
         .locationAuto=${watch(locationAuto)}
         .onSelectLocation=${this._handleSelectLocation}
-      ></leaflet-select-location>
+        .places=${this.places}
+        .onBoundsChange=${this.onBoundsChange}></leaflet-select-location>
+      </leaflet-select-location>
     `
   }
 }

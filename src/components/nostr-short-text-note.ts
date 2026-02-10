@@ -136,3 +136,12 @@ declare global {
     'nostr-short-text-note': NostrShortTextNote
   }
 }
+
+export const getEventGeohash = (event: NDKEvent) => {
+  return event.tags
+    .filter(tag => tag[0] === 'g')
+    .map(tag => tag[1])
+    .filter(g => Boolean(g))
+    .sort((a, b) => a.length - b.length)
+    .pop()
+}
