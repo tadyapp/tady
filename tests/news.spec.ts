@@ -1,91 +1,76 @@
-import NDK, { NDKEvent, NDKPrivateKeySigner } from '@nostr-dev-kit/ndk'
-import { expect, test } from '@playwright/test'
-import { updateAppConfig } from './helpers'
-import { freshRelay, stopRelay } from './relay'
+import NDK from '@nostr-dev-kit/ndk'
+import { expect, Page, test } from '@playwright/test'
+import {
+  createEvent,
+  createUser,
+  destroyRelays,
+  prepareRelays,
+} from './helpers'
+import { stopRelay } from './relay'
 
 test.describe('News at a location', () => {
-  let relay: string
+  let ndk: NDK
+
   test.beforeEach(async ({ page }) => {
-    relay = await freshRelay()
-    await page.waitForTimeout(500)
-    await updateAppConfig(
-      page,
-      { relays: [relay] },
-      { path: '/404', locator: page.getByRole('main') },
-    )
+    ndk = await prepareRelays(page)
   })
 
   test.afterEach(async () => {
+    await destroyRelays(ndk)
+  })
+
+  test.afterEach(async () => {
+    for (const relay of ndk.pool.relays.values()) relay.disconnect()
+
+    ndk.pool.relays.clear()
     await stopRelay()
   })
 
   test.beforeEach(async () => {
-    const aliceSigner = NDKPrivateKeySigner.generate()
-    const bobSigner = NDKPrivateKeySigner.generate()
-    const ceciliaSigner = NDKPrivateKeySigner.generate()
-    const ndk = new NDK({ explicitRelayUrls: [relay] })
-    await ndk.connect()
-
-    const alice = await aliceSigner.user()
-    alice.ndk = ndk
-    ndk.signer = aliceSigner
-    alice.profile = { name: 'Alice', about: 'Test user' }
-    await alice.publish()
-    ndk.signer = undefined
-    const event = new NDKEvent(ndk, {
-      content: 'Test content',
-      tags: [
-        ['g', 'u2fkb05'],
-        ['g', 'u2fkb0'],
-        ['g', 'u2fkb'],
-        ['g', 'u2fk'],
-        ['g', 'u2f'],
-        ['g', 'u2'],
-        ['g', 'u'],
-      ],
-      kind: 1,
+    const alice = await createUser({
+      ndk,
+      profile: { name: 'Alice', about: 'Test user' },
     })
-    await event.sign(aliceSigner)
-    await event.publish()
+    const bob = await createUser()
+    const cecilia = await createUser()
 
-    const event2 = new NDKEvent(ndk, {
-      content: 'Other test event',
-      tags: [
-        ['g', 'u2fm6v'],
-        ['g', 'u2fm6'],
-        ['g', 'u2fm'],
-        ['g', 'u2f'],
-        ['g', 'u2'],
-        ['g', 'u'],
-      ],
-      kind: 1,
+    await createEvent({
+      ndk,
+      user: alice,
+      event: { content: 'Test content', kind: 1 },
+      location: 'u2fkb05',
     })
-    await event2.sign(bobSigner)
-    await event2.publish()
-
-    const event3 = new NDKEvent(ndk, {
-      content: 'Yet another test event',
-      tags: [
-        ['g', 'u2fhzvvh'],
-        ['g', 'u2fhzvv'],
-        ['g', 'u2fhzv'],
-        ['g', 'u2fhz'],
-        ['g', 'u2fh'],
-        ['g', 'u2f'],
-        ['g', 'u2'],
-        ['g', 'u'],
-      ],
-      kind: 1,
+    await createEvent({
+      ndk,
+      user: bob,
+      event: { content: 'Other test event', kind: 1 },
+      location: 'u2fm6v',
     })
-    await event3.sign(ceciliaSigner)
-    await event3.publish()
+    await createEvent({
+      ndk,
+      user: cecilia,
+      event: { content: 'Yet another test event', kind: 1 },
+      location: 'u2fhzvvh',
+    })
   })
+
+  const selectLocation = async (
+    page: Page,
+    latitude: number,
+    longitude: number,
+  ) => {
+    await page
+      .getByRole('spinbutton', { name: 'latitude' })
+      .fill(String(latitude))
+    await page
+      .getByRole('spinbutton', { name: 'longitude' })
+      .fill(String(longitude))
+  }
 
   test('show news at a selected location', async ({ page }) => {
     await page.getByRole('link', { name: 'news' }).click()
     await expect(page).toHaveURL('/news')
-    await page.getByRole('spinbutton', { name: 'latitude' }).fill('50')
-    await page.getByRole('spinbutton', { name: 'longitude' }).fill('14.5')
+    await selectLocation(page, 50.087496, 14.421181)
     await expect(page.getByTestId('news-item')).toHaveCount(3)
   })
 })
