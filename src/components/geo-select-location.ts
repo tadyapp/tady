@@ -96,16 +96,18 @@ export class GeoSelectLocation extends SignalWatcher(LitElement) {
       </div>
       <div>manual: ${locationSelected.get()}</div>
       <div>
-        <label>latitude</label>
+        <label for="geo-latitude">latitude</label>
         <input
+          id="geo-latitude"
           type="number"
           @input=${this.#onLatitudeChange}
           value=${ifDefined(this._latitude)}
         />
       </div>
       <div>
-        <label>longitude</label>
+        <label for="geo-longitude">longitude</label>
         <input
+          id="geo-longitude"
           type="number"
           @input=${this.#onLongitudeChange}
           value=${ifDefined(this._longitude)}

@@ -38,7 +38,6 @@ export class TadyLayout extends LitElement {
   })
 
   render() {
-    console.log(this._events.events)
     // const kindMap = new Map<number, number>()
     // for (const event of this._events.events) {
     //   kindMap.set(event.kind, (kindMap.get(event.kind) ?? 0) + 1)

@@ -53,7 +53,7 @@ export class TadyNews extends LitElement {
           this._events,
           event => event.id,
           event => html`
-            <li>
+            <li data-testid="news-item">
               <nostr-short-text-note
                 .nostrEvent=${event}
                 .origin=${origin}
