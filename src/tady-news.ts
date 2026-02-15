@@ -21,7 +21,10 @@ export class TadyNews extends LitElement {
   private _subscription?: NDKSubscription
 
   protected willUpdate(_changedProperties: PropertyValues): void {
-    if (_changedProperties.has('locationSelected')) {
+    if (
+      _changedProperties.has('locationSelected') ||
+      _changedProperties.has('locationAuto')
+    ) {
       this._events = []
 
       const coord = this.locationSelected ?? this.locationAuto
@@ -34,7 +37,12 @@ export class TadyNews extends LitElement {
         this._subscription = ndk.subscribe(
           geohashes.map(g => ({ kinds: [1], '#g': [g] })),
           { closeOnEose: false },
-          { onEvent: e => (this._events = [...this._events, e]) },
+          {
+            onEvent: e => {
+              console.log(e)
+              this._events = [...this._events, e]
+            },
+          },
         )
       }
     }

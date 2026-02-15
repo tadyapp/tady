@@ -2,10 +2,12 @@ import '@awesome.me/webawesome/dist/components/dialog/dialog.js'
 import type WaDialog from '@awesome.me/webawesome/dist/components/dialog/dialog.js'
 import '@awesome.me/webawesome/dist/styles/themes/default.css'
 import { SignalWatcher } from '@lit-labs/signals'
+import { NDKEvent, NDKPrivateKeySigner } from '@nostr-dev-kit/ndk'
 import { css, html, LitElement } from 'lit'
 import { customElement, query, state } from 'lit/decorators.js'
 import './components/geo-select-geohash'
 import { locationAuto, locationSelected } from './data/location'
+import { ndk } from './data/ndk'
 
 interface FormValues {
   content: string
@@ -24,8 +26,8 @@ export class TadyCreateNews extends SignalWatcher(LitElement) {
     this._dialog.open = false
   }
 
-  @state()
-  values: Partial<FormValues> = {}
+  @state() selectIdentityOpen = false
+  @state() values: Partial<FormValues> = {}
 
   private _submit(e: SubmitEvent) {
     e.preventDefault()
@@ -36,8 +38,26 @@ export class TadyCreateNews extends SignalWatcher(LitElement) {
     ) as Partial<FormValues>
     this.values = formValues
     console.log(formValues)
-    // const event = new CustomEvent('confirm', { detail: { data: formValues } })
-    // this.dispatchEvent(event)
+    this.selectIdentityOpen = true
+  }
+
+  private async _confirmAnonymous() {
+    console.log(this.values)
+    this.selectIdentityOpen = false
+    try {
+      ndk.signer = NDKPrivateKeySigner.generate()
+      const event = new NDKEvent(ndk, {
+        kind: 1,
+        content: this.values.content,
+        tags: this.values.geohash
+          ? substrings(this.values.geohash).map(g => ['g', g])
+          : undefined,
+      })
+      await event.publish()
+      this._close()
+    } finally {
+      ndk.signer = undefined
+    }
   }
 
   private _change(e: Event) {
@@ -73,6 +93,17 @@ export class TadyCreateNews extends SignalWatcher(LitElement) {
         <button slot="footer" form="create-news-form" type="reset">
           Cancel
         </button>
+      </wa-dialog>
+      <wa-dialog
+        id="select-identity-dialog"
+        label="Select identity"
+        ?open=${this.selectIdentityOpen}
+      >
+        Select identity to post the event:
+        <button slot="footer">Sign in</button>
+        <button slot="footer" @click=${this._confirmAnonymous}>
+          Post anonymously
+        </button>
       </wa-dialog>`
   }
 
@@ -83,3 +114,6 @@ export class TadyCreateNews extends SignalWatcher(LitElement) {
     }
   `
 }
+
+export const substrings = (s: string) =>
+  Array.from({ length: s.length }, (_, i) => s.slice(0, s.length - i))
