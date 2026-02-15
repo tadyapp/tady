@@ -91,12 +91,13 @@ export const prepareRelays = async (page: Page) => {
   return ndk
 }
 
-export const destroyRelays = async (ndk: NDK) => {
-  for (const pool of ndk.pools) {
-    for (const relay of pool.relays.values()) {
-      relay.disconnect()
+export const destroyRelays = async (ndk?: NDK) => {
+  if (ndk)
+    for (const pool of ndk.pools) {
+      for (const relay of pool.relays.values()) {
+        relay.disconnect()
+      }
+      pool.relays.clear()
     }
-    pool.relays.clear()
-  }
   await stopRelay()
 }

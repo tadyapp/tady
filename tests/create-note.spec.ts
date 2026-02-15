@@ -31,11 +31,8 @@ test.describe('Create a note (news)', () => {
   test('show initial geolocated location', async ({ page, context }) => {
     await context.setGeolocation({ latitude: 49, longitude: 14 })
     await page.getByRole('link', { name: 'news' }).click()
-
     await page.getByRole('button', { name: 'create news' }).click()
-
     await expect(page.getByTestId('create-news-form')).toBeVisible()
-
     await expect(page.locator('geo-select-geohash')).toHaveJSProperty(
       'value',
       'u29yy8',
@@ -44,7 +41,24 @@ test.describe('Create a note (news)', () => {
   test.fixme('geolocate location', async () => {})
   test.fixme('select location manually', async () => {})
   test.fixme('select location from media metadata', async () => {})
-  test.fixme('select precision', async () => {})
+  test.use({ permissions: ['geolocation'] })
+  test('select precision', async ({ page, context }) => {
+    await context.setGeolocation({ latitude: 49, longitude: 14 })
+    await page.getByRole('link', { name: 'news' }).click()
+    await page.getByRole('button', { name: 'create news' }).click()
+    await expect(page.getByTestId('create-news-form')).toBeVisible()
+    await expect(page.locator('geo-select-geohash')).toHaveJSProperty(
+      'value',
+      'u29yy8',
+    )
+    await page.locator('#geohash-precision #thumb').click()
+    await page.keyboard.press('ArrowRight')
+    await page.keyboard.press('ArrowRight')
+    await expect(page.locator('geo-select-geohash')).toHaveJSProperty(
+      'value',
+      'u29yy84m',
+    )
+  })
   test.fixme('show note preview', async () => {})
   test.fixme('successful submit with authenticated user', async () => {})
   test.fixme('successful submit with anonymous user', async () => {})
