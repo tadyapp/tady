@@ -6,6 +6,7 @@ import { repeat } from 'lit/directives/repeat.js'
 import { getRelevantGeohashes } from './components/leaflet-select-location.js'
 import './components/nostr-short-text-note.js'
 import { ndk } from './data/ndk'
+import './tady-create-news.js'
 
 @customElement('tady-news')
 export class TadyNews extends LitElement {
@@ -61,7 +62,9 @@ export class TadyNews extends LitElement {
             </li>
           `,
         )}
-      </ul> `
+      </ul>
+
+      <tady-create-news></tady-create-news>`
   }
 
   static styles = css`

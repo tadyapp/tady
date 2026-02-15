@@ -87,6 +87,10 @@ export class LeafletSelectLocation extends LitElement {
       .setView([50, 15], 5)
       .addLayer(tileLayer('https://{s}.tile.osm.org/{z}/{x}/{y}.png'))
 
+    new ResizeObserver(() => {
+      this._map?.invalidateSize()
+    }).observe(this._mapEl)
+
     this.onBoundsChange?.(this._map.getBounds(), this._map.getZoom())
 
     this._map.on('click', e => {
@@ -231,9 +235,10 @@ export const getRelevantGeohashes = ({
   return geohashes
 }
 
-const normalizeLng = (lng: number) => (((lng % 360) - 180 * 3) % 360) + 180
+export const normalizeLng = (lng: number) =>
+  (((lng % 360) - 180 * 3) % 360) + 180
 
-const geohash2polygon = (gh: string): LatLngExpression[] => {
+export const geohash2polygon = (gh: string): LatLngExpression[] => {
   const [lat0, lng0, lat1, lng1] = ngeohash.decode_bbox(gh)
   return [
     [lat0, lng0],

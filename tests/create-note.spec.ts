@@ -1,45 +1,53 @@
-import NDK, { NDKPool } from '@nostr-dev-kit/ndk'
-import { EventGenerator, RelayPoolMock } from '@nostr-dev-kit/ndk/test'
-import test from '@playwright/test'
+import NDK from '@nostr-dev-kit/ndk'
+import { expect, test } from '@playwright/test'
+import { destroyRelays, prepareRelays } from './helpers'
 
 test.describe('Create a note (news)', () => {
   let ndk: NDK
-  let pool: RelayPoolMock
 
-  test.beforeEach(async () => {
-    // Create mock relay pool
-    pool = new RelayPoolMock()
-
-    // Initialize NDK with mock pool
-    ndk = new NDK({ explicitRelayUrls: [] })
-    ndk.pool = pool as unknown as NDKPool
-
-    // Add mock relays
-    pool.addMockRelay('wss://relay.example.com')
-
-    // Configure EventGenerator
-    EventGenerator.setNDK(ndk)
+  test.beforeEach(async ({ page }) => {
+    ndk = await prepareRelays(page)
   })
 
-  test.afterEach(() => {
-    pool.disconnectAll()
-    pool.resetAll()
+  test.afterEach(async () => {
+    await destroyRelays(ndk)
   })
 
-  test.fixme('open create form', async ({ page }) => {
-    await page.goto('/')
+  test('open create form', async ({ page }) => {
+    await page.getByRole('link', { name: 'news' }).click()
+    await page.getByRole('button', { name: 'create news' }).click()
+    await expect(page.getByTestId('create-news-form')).toBeVisible()
   })
-  test.fixme('write text content', async () => {})
+  test('write text content', async ({ page }) => {
+    await page.getByRole('link', { name: 'news' }).click()
+    await page.getByRole('button', { name: 'create news' }).click()
+    await expect(page.getByTestId('create-news-form')).toBeVisible()
+    await page.getByRole('textbox', { name: 'content' }).fill('some text here')
+  })
   test.fixme('correctly manage tags', async () => {})
   test.fixme('upload media', async () => {})
   test.fixme('take a photo or record a video', async () => {})
-  test.fixme('show current default location', async () => {})
+  test.use({ permissions: ['geolocation'] })
+  test('show initial geolocated location', async ({ page, context }) => {
+    await context.setGeolocation({ latitude: 49, longitude: 14 })
+    await page.getByRole('link', { name: 'news' }).click()
+
+    await page.getByRole('button', { name: 'create news' }).click()
+
+    await expect(page.getByTestId('create-news-form')).toBeVisible()
+
+    await expect(page.locator('geo-select-geohash')).toHaveJSProperty(
+      'value',
+      'u29yy8',
+    )
+  })
   test.fixme('geolocate location', async () => {})
   test.fixme('select location manually', async () => {})
   test.fixme('select location from media metadata', async () => {})
   test.fixme('select precision', async () => {})
   test.fixme('show note preview', async () => {})
-  test.fixme('successful submit', async () => {})
+  test.fixme('successful submit with authenticated user', async () => {})
+  test.fixme('successful submit with anonymous user', async () => {})
   test.fixme('show error when content is empty', async () => {})
   test.fixme('show error when location is not selected', async () => {})
 })

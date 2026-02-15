@@ -6,7 +6,6 @@ import {
   destroyRelays,
   prepareRelays,
 } from './helpers'
-import { stopRelay } from './relay'
 
 test.describe('News at a location', () => {
   let ndk: NDK
@@ -17,13 +16,6 @@ test.describe('News at a location', () => {
 
   test.afterEach(async () => {
     await destroyRelays(ndk)
-  })
-
-  test.afterEach(async () => {
-    for (const relay of ndk.pool.relays.values()) relay.disconnect()
-
-    ndk.pool.relays.clear()
-    await stopRelay()
   })
 
   test.beforeEach(async () => {

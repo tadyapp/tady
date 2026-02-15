@@ -35,11 +35,9 @@ export class NostrShortTextNote extends LitElement {
       .sort((a, b) => a.length - b.length)
       .pop()
 
-    const loc = geohash ? ngeohash.decode(geohash) : undefined
-    const dest = loc ? new LatLng(loc.latitude, loc.longitude) : undefined
-    const locError = loc ? errorInDegreesToMeters(loc) : undefined
-    const precision =
-      locError && (locError.latitude ** 2 + locError.longitude ** 2) ** 0.5
+    const loc = geohash ? geohash2location(geohash) : undefined
+    const dest = loc?.coords
+    const precision = loc?.precision
 
     return html`<div class="note">
       <div class="avatar-panel">
@@ -144,4 +142,15 @@ export const getEventGeohash = (event: NDKEvent) => {
     .filter(g => Boolean(g))
     .sort((a, b) => a.length - b.length)
     .pop()
+}
+
+export const geohash2location = (geohash: string) => {
+  if (!geohash) return undefined
+  const loc = ngeohash.decode(geohash)
+  const dest = new LatLng(loc.latitude, loc.longitude)
+  const locError = errorInDegreesToMeters(loc)
+  const precision =
+    locError && (locError.latitude ** 2 + locError.longitude ** 2) ** 0.5
+
+  return { coords: dest, precision }
 }

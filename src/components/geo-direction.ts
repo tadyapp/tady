@@ -24,7 +24,16 @@ export class GeoDirection extends LitElement {
 }
 
 export const formatDistance = (distance: number): string => {
-  if (distance < 1000) {
+  if (distance < 0.05) {
+    return Math.round(distance * 1000) + 'mm'
+  }
+  if (distance < 0.5) {
+    return Math.round(distance * 100) + 'cm'
+  }
+  if (distance < 5) {
+    // Distance in meters
+    return `${distance.toFixed(1)}m`
+  } else if (distance < 1000) {
     // Distance in meters
     return `${Math.round(distance)}m`
   } else {
