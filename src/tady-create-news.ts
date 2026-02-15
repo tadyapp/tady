@@ -1,8 +1,15 @@
+import '@awesome.me/webawesome/dist/components/button/button.js'
 import '@awesome.me/webawesome/dist/components/dialog/dialog.js'
 import type WaDialog from '@awesome.me/webawesome/dist/components/dialog/dialog.js'
+import '@awesome.me/webawesome/dist/components/icon/icon.js'
 import '@awesome.me/webawesome/dist/styles/themes/default.css'
 import { SignalWatcher } from '@lit-labs/signals'
-import { NDKEvent, NDKPrivateKeySigner } from '@nostr-dev-kit/ndk'
+import {
+  NDKEvent,
+  NDKNip07Signer,
+  NDKPrivateKeySigner,
+  type NDKSigner,
+} from '@nostr-dev-kit/ndk'
 import { css, html, LitElement } from 'lit'
 import { customElement, query, state } from 'lit/decorators.js'
 import './components/geo-select-geohash'
@@ -41,23 +48,43 @@ export class TadyCreateNews extends SignalWatcher(LitElement) {
     this.selectIdentityOpen = true
   }
 
-  private async _confirmAnonymous() {
-    console.log(this.values)
-    this.selectIdentityOpen = false
+  private async _confirmAuthenticated() {
     try {
-      ndk.signer = NDKPrivateKeySigner.generate()
-      const event = new NDKEvent(ndk, {
-        kind: 1,
-        content: this.values.content,
-        tags: this.values.geohash
-          ? substrings(this.values.geohash).map(g => ['g', g])
-          : undefined,
-      })
-      await event.publish()
+      this.selectIdentityOpen = false
+      const signer = new NDKNip07Signer()
+      await this._publishEvent(signer)
       this._close()
-    } finally {
-      ndk.signer = undefined
+    } catch (e) {
+      if (e instanceof Error) alert(e.message)
+      else alert(e)
+      throw e
     }
+  }
+
+  private async _confirmAnonymous() {
+    try {
+      this.selectIdentityOpen = false
+      const signer = NDKPrivateKeySigner.generate()
+      await this._publishEvent(signer)
+      this._close()
+    } catch (e) {
+      if (e instanceof Error) alert(e.message)
+      else alert(e)
+      throw e
+    }
+  }
+
+  private async _publishEvent(signer: NDKSigner) {
+    const event = new NDKEvent(ndk, {
+      kind: 1,
+      content: this.values.content,
+      tags: this.values.geohash
+        ? substrings(this.values.geohash).map(g => ['g', g])
+        : undefined,
+    })
+    await event.sign(signer)
+    await event.publish()
+    this._close()
   }
 
   private _change(e: Event) {
@@ -67,9 +94,14 @@ export class TadyCreateNews extends SignalWatcher(LitElement) {
   }
 
   render() {
-    return html`<button @click=${this._open}>
+    return html`<wa-button
+        part="trigger"
+        @click=${this._open}
+        variant="neutral"
+        appearance="accent"
+      >
         <wa-icon name="plus" label="Create news"></wa-icon>
-      </button>
+      </wa-button>
       <wa-dialog id="create-news-dialog" label="Event source">
         <pre>${JSON.stringify(this.values, null, 2)}</pre>
         <form
@@ -100,7 +132,9 @@ export class TadyCreateNews extends SignalWatcher(LitElement) {
         ?open=${this.selectIdentityOpen}
       >
         Select identity to post the event:
-        <button slot="footer">Sign in</button>
+        <button slot="footer" @click=${this._confirmAuthenticated}>
+          Sign in
+        </button>
         <button slot="footer" @click=${this._confirmAnonymous}>
           Post anonymously
         </button>

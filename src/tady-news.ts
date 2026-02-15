@@ -39,7 +39,6 @@ export class TadyNews extends LitElement {
           { closeOnEose: false },
           {
             onEvent: e => {
-              console.log(e)
               this._events = [...this._events, e]
             },
           },
@@ -84,6 +83,13 @@ export class TadyNews extends LitElement {
       flex-direction: column;
       align-items: stretch;
       gap: 1rem;
+    }
+
+    tady-create-news::part(trigger) {
+      display: block;
+      position: fixed;
+      right: 2rem;
+      bottom: 2rem;
     }
   `
 }

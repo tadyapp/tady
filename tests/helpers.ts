@@ -77,18 +77,25 @@ const substrings = (s: string) =>
   Array.from({ length: s.length }, (_, i) => s.slice(0, s.length - i))
 
 export const prepareRelays = async (page: Page) => {
+  const { ndk, relay } = await setupTestRelay()
+  await updateAppRelays(page, [relay])
+  return ndk
+}
+
+export const setupTestRelay = async () => {
   const relay = await freshRelay()
+  const ndk = new NDK({ explicitRelayUrls: [relay] })
+  await ndk.connect()
+  return { ndk, relay }
+}
+
+export const updateAppRelays = async (page: Page, relays: string[]) => {
   await page.waitForTimeout(1000)
   await updateAppConfig(
     page,
-    { relays: [relay] },
+    { relays },
     { path: '/404', locator: page.getByRole('main') },
   )
-
-  const ndk = new NDK({ explicitRelayUrls: [relay] })
-  await ndk.connect()
-
-  return ndk
 }
 
 export const destroyRelays = async (ndk?: NDK) => {
