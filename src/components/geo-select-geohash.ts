@@ -19,9 +19,8 @@ import leafletStyles from 'leaflet/dist/leaflet.css?inline'
 import { css, html, LitElement, unsafeCSS, type PropertyValues } from 'lit'
 import { customElement, property, query, state } from 'lit/decorators.js'
 import ngeohash from 'ngeohash'
-import { formatDistance } from './geo-direction.js'
+import { formatDistance, geohash2polygon, normalizeLng } from '../utils/geo.js'
 import './leaflet-icon-setup.js'
-import { geohash2polygon, normalizeLng } from './leaflet-select-location.js'
 import { geohash2location } from './nostr-short-text-note.js'
 
 @customElement('geo-select-geohash')

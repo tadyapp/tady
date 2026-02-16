@@ -17,7 +17,7 @@ import {
   locationSelected,
   radius,
 } from '../data/location'
-import { formatDistance } from './geo-direction.js'
+import { formatDistance, formatLatLng } from '../utils/geo.js'
 import './leaflet-select-location.js'
 
 @customElement('geo-select-location')
@@ -128,16 +128,19 @@ export class GeoSelectLocation extends SignalWatcher(LitElement) {
         : locationAuto.get()
 
     return html`
-      <wa-button @click=${this.openDialog} appearance="plain">
-        <wa-icon name="location-dot" label="location"></wa-icon>
-        ${activeLocation?.lat.toFixed(4)}, ${activeLocation?.lng.toFixed(4)}
-        &plusmn; ${formatDistance(radius.get())}
+      <wa-button
+        @click=${this.openDialog}
+        appearance="plain"
+        data-testid="location-select-trigger"
+      >
         ${activeLocationType === 'manual'
           ? html`<wa-icon name="hand" label="selected location"></wa-icon>`
           : html`<wa-icon
               name="location-crosshairs"
               label="automatic location"
             ></wa-icon>`}
+        ${formatLatLng(activeLocation, { decimals: 4 })} &plusmn;
+        ${formatDistance(radius.get())}
       </wa-button>
       <wa-dialog light-dismiss id="location-select-dialog">
         <div>
@@ -154,7 +157,8 @@ export class GeoSelectLocation extends SignalWatcher(LitElement) {
               name="location-crosshairs"
               label="automatic location"
             ></wa-icon>
-            ${locationAuto.get()} ${this._geolocationPositionError?.message}
+            ${formatLatLng(locationAuto.get())}
+            ${this._geolocationPositionError?.message}
           </label>
         </div>
         <div>
@@ -168,13 +172,14 @@ export class GeoSelectLocation extends SignalWatcher(LitElement) {
               ?disabled=${!locationSelected.get()}
             />
             <wa-icon name="hand" label="selected location"></wa-icon>
-            ${locationSelected.get()}</label
+            ${formatLatLng(locationSelected.get(), { decimals: 6 })}</label
           >
         </div>
         <div>
           <wa-icon name="location-dot" label="coordinates"></wa-icon>
           <!-- <label for="geo-latitude">latitude</label> -->
           <input
+            aria-label="latitude"
             placeholder="latitude"
             id="geo-latitude"
             type="number"
@@ -183,6 +188,7 @@ export class GeoSelectLocation extends SignalWatcher(LitElement) {
           />
           <!-- <label for="geo-longitude">longitude</label> -->
           <input
+            aria-label="longitude"
             placeholder="longitude"
             id="geo-longitude"
             type="number"
@@ -223,6 +229,7 @@ export class GeoSelectLocation extends SignalWatcher(LitElement) {
           .onSelectLocation=${this._handleSelectLocation}
           .places=${this.places}
           .onBoundsChange=${this.onBoundsChange}
+          radius=${radius.get()}
         ></leaflet-select-location>
       </wa-dialog>
     `

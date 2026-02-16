@@ -3,10 +3,10 @@ import { LatLng } from 'leaflet'
 import { css, html, LitElement, type PropertyValues } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
 import { repeat } from 'lit/directives/repeat.js'
-import { getRelevantGeohashes } from './components/leaflet-select-location.js'
 import './components/nostr-short-text-note.js'
 import { ndk } from './data/ndk'
 import './tady-create-news.js'
+import { getCircleGeohashesInRadius } from './utils/geo.js'
 
 @customElement('tady-news')
 export class TadyNews extends LitElement {
@@ -14,6 +14,7 @@ export class TadyNews extends LitElement {
   locationAuto?: LatLng
   @property({ attribute: false })
   locationSelected?: LatLng
+  @property({ type: Number }) radius!: number
 
   @state()
   private _events: NDKEvent[] = []
@@ -23,14 +24,19 @@ export class TadyNews extends LitElement {
   protected willUpdate(_changedProperties: PropertyValues): void {
     if (
       _changedProperties.has('locationSelected') ||
-      _changedProperties.has('locationAuto')
+      _changedProperties.has('locationAuto') ||
+      _changedProperties.has('radius')
     ) {
       this._events = []
 
       const coord = this.locationSelected ?? this.locationAuto
       if (coord) {
         const geohashes = Array.from(
-          getRelevantGeohashes({ coord, precision: 4, rings: 1 }),
+          getCircleGeohashesInRadius({
+            coord,
+            precision: 4,
+            radiusMeters: this.radius,
+          }),
         )
 
         this._subscription?.stop()

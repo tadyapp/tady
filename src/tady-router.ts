@@ -2,7 +2,7 @@ import { Router } from '@lit-labs/router'
 import { SignalWatcher, watch } from '@lit-labs/signals'
 import { html, LitElement } from 'lit'
 import { customElement } from 'lit/decorators.js'
-import { locationAuto, locationSelected } from './data/location.js'
+import { locationAuto, locationSelected, radius } from './data/location.js'
 import { navigate } from './navigate.js'
 import './tady-events.js'
 import './tady-market.js'
@@ -28,6 +28,7 @@ export class TadyRouter extends SignalWatcher(LitElement) {
         html`<tady-news
           .locationSelected=${watch(locationSelected)}
           .locationAuto=${watch(locationAuto)}
+          radius=${radius.get()}
         ></tady-news>`,
     },
     {

@@ -51,6 +51,7 @@ test.describe('News at a location', () => {
     latitude: number,
     longitude: number,
   ) => {
+    await page.getByTestId('location-select-trigger').click()
     await page
       .getByRole('spinbutton', { name: 'latitude' })
       .fill(String(latitude))
