@@ -10,7 +10,6 @@ import {
   marker,
   polygon,
   tileLayer,
-  type LatLngExpression,
   type Map,
   type Marker,
   type MarkerOptions,
@@ -20,6 +19,11 @@ import leafletStyles from 'leaflet/dist/leaflet.css?inline'
 import { css, html, LitElement, unsafeCSS, type PropertyValues } from 'lit'
 import { customElement, property, query, state } from 'lit/decorators.js'
 import ngeohash from 'ngeohash'
+import {
+  geohash2polygon,
+  getCircleGeohashesInRadius,
+  normalizeLng,
+} from '../utils/geo.js'
 import './leaflet-icon-setup.js'
 
 @customElement('leaflet-select-location')
@@ -34,7 +38,7 @@ export class LeafletSelectLocation extends LitElement {
   precision = 4
 
   @property({ type: Number })
-  rings = 1
+  radius!: number
 
   @property({ attribute: false })
   onBoundsChange?: (bounds: LatLngBounds, zoom: number) => unknown
@@ -139,13 +143,13 @@ export class LeafletSelectLocation extends LitElement {
       _changedProperties.has('rings')
     ) {
       const coord = this.location ?? this.locationAuto
-      if (this._map && coord && this.precision && this.rings) {
+      if (this._map && coord && this.precision && this.radius) {
         this._polygons.forEach(p => p.remove())
         this._polygons = []
-        const geohashes = getRelevantGeohashes({
+        const geohashes = getCircleGeohashesInRadius({
           coord,
           precision: this.precision,
-          rings: this.rings,
+          radiusMeters: this.radius,
         })
 
         for (const gh of geohashes) {
@@ -206,44 +210,4 @@ declare global {
   interface HTMLElementTagNameMap {
     'leaflet-select-location': LeafletSelectLocation
   }
-}
-
-export const getRelevantGeohashes = ({
-  coord,
-  precision,
-  rings,
-}: {
-  coord: LatLng
-  precision: number
-  rings: number
-}) => {
-  const geohashes = new Set<string>()
-  geohashes.add(ngeohash.encode(coord.lat, coord.lng, precision))
-
-  for (let i = 0, len = rings; i < len; ++i) {
-    const nextghs = new Set<string>()
-    for (const h of geohashes) {
-      for (const n of ngeohash.neighbors(h)) {
-        nextghs.add(n)
-      }
-    }
-    for (const h of nextghs) {
-      geohashes.add(h)
-    }
-  }
-
-  return geohashes
-}
-
-export const normalizeLng = (lng: number) =>
-  (((lng % 360) - 180 * 3) % 360) + 180
-
-export const geohash2polygon = (gh: string): LatLngExpression[] => {
-  const [lat0, lng0, lat1, lng1] = ngeohash.decode_bbox(gh)
-  return [
-    [lat0, lng0],
-    [lat0, lng1],
-    [lat1, lng1],
-    [lat1, lng0],
-  ]
 }

@@ -53,6 +53,11 @@ export class TadyLayout extends LitElement {
 
     return html`
       <header class="header">
+        <nav>
+          <a href="/news">news</a>
+          <a href="/events">events</a>
+          <a href="/market">market</a>
+        </nav>
         <geo-select-location
           .onBoundsChange=${(bounds: LatLngBounds, zoom: number) => {
             this._bounds = bounds
@@ -60,11 +65,6 @@ export class TadyLayout extends LitElement {
           }}
           .places=${places}
         ></geo-select-location>
-        <nav>
-          <a href="/news">news</a>
-          <a href="/events">events</a>
-          <a href="/market">market</a>
-        </nav>
       </header>
       <main><tady-router></tady-router></main>
     `
@@ -73,7 +73,8 @@ export class TadyLayout extends LitElement {
   static styles = css`
     .header {
       display: flex;
-      flex-direction: column;
+      flex-wrap: wrap;
+      /* flex-direction: column; */
       gap: 1rem;
       margin-bottom: 1rem;
     }
