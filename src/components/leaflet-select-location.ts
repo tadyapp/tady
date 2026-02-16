@@ -140,7 +140,7 @@ export class LeafletSelectLocation extends LitElement {
       _changedProperties.has('location') ||
       _changedProperties.has('locationAuto') ||
       _changedProperties.has('precision') ||
-      _changedProperties.has('rings')
+      _changedProperties.has('radius')
     ) {
       const coord = this.location ?? this.locationAuto
       if (this._map && coord && this.precision && this.radius) {

@@ -1,17 +1,20 @@
+import { SignalWatcher } from '@lit-labs/signals'
 import type { LatLngBounds } from 'leaflet'
 import { LitElement, css, html } from 'lit'
 import { customElement, state } from 'lit/decorators.js'
+import { classMap } from 'lit/directives/class-map.js'
 import ngeohash from 'ngeohash'
 import './components/geo-select-location.js'
 import { getEventGeohash } from './components/nostr-short-text-note.js'
 import { NostrGeoSubscription } from './controllers/geohash-subscription.js'
+import { activeType, typeKinds } from './data/things.js'
 import './tady-router.js'
 
 /**
  * Layout
  */
 @customElement('tady-layout')
-export class TadyLayout extends LitElement {
+export class TadyLayout extends SignalWatcher(LitElement) {
   @state()
   private _bounds?: LatLngBounds
   private _zoom?: number
@@ -34,7 +37,10 @@ export class TadyLayout extends LitElement {
       }
       return geos
     },
-    kinds: () => [1],
+    kinds: () => {
+      const at = activeType.get()
+      return at ? typeKinds[at] : [-1]
+    },
   })
 
   render() {
@@ -51,12 +57,20 @@ export class TadyLayout extends LitElement {
       }),
     )
 
+    const active = activeType.get()
+
     return html`
       <header class="header">
         <nav>
-          <a href="/news">news</a>
-          <a href="/events">events</a>
-          <a href="/market">market</a>
+          <a href="/news" class=${classMap({ active: active === 'news' })}
+            >news</a
+          >
+          <a href="/events" class=${classMap({ active: active === 'events' })}
+            >events</a
+          >
+          <a href="/market" class=${classMap({ active: active === 'market' })}
+            >market</a
+          >
         </nav>
         <geo-select-location
           .onBoundsChange=${(bounds: LatLngBounds, zoom: number) => {
@@ -77,15 +91,19 @@ export class TadyLayout extends LitElement {
       /* flex-direction: column; */
       gap: 1rem;
       margin-bottom: 1rem;
-    }
 
-    .header nav {
-      display: flex;
-      gap: 1rem;
-    }
+      nav {
+        display: flex;
+        gap: 1rem;
 
-    .header nav a {
-      font-size: 2rem;
+        a {
+          font-size: 2rem;
+
+          &.active {
+            color: pink;
+          }
+        }
+      }
     }
   `
 }

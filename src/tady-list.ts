@@ -8,13 +8,15 @@ import { ndk } from './data/ndk'
 import './tady-create-news.js'
 import { getCircleGeohashesInRadius } from './utils/geo.js'
 
-@customElement('tady-news')
-export class TadyNews extends LitElement {
+@customElement('tady-list')
+export class TadyList extends LitElement {
   @property({ attribute: false })
   locationAuto?: LatLng
   @property({ attribute: false })
   locationSelected?: LatLng
   @property({ type: Number }) radius!: number
+
+  @property({ type: Array }) kinds: number[] = [0]
 
   @state()
   private _events: NDKEvent[] = []
@@ -25,7 +27,8 @@ export class TadyNews extends LitElement {
     if (
       _changedProperties.has('locationSelected') ||
       _changedProperties.has('locationAuto') ||
-      _changedProperties.has('radius')
+      _changedProperties.has('radius') ||
+      _changedProperties.has('kinds')
     ) {
       this._events = []
 
@@ -41,7 +44,7 @@ export class TadyNews extends LitElement {
 
         this._subscription?.stop()
         this._subscription = ndk.subscribe(
-          geohashes.map(g => ({ kinds: [1], '#g': [g] })),
+          geohashes.map(g => ({ kinds: this.kinds, '#g': [g] })),
           { closeOnEose: false },
           {
             onEvent: e => {
@@ -102,6 +105,6 @@ export class TadyNews extends LitElement {
 
 declare global {
   interface HTMLElementTagNameMap {
-    'tady-news': TadyNews
+    'tady-list': TadyList
   }
 }

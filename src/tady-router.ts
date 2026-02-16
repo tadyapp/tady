@@ -3,10 +3,9 @@ import { SignalWatcher, watch } from '@lit-labs/signals'
 import { html, LitElement } from 'lit'
 import { customElement } from 'lit/decorators.js'
 import { locationAuto, locationSelected, radius } from './data/location.js'
+import { activeType, typeKinds } from './data/things.js'
 import { navigate } from './navigate.js'
-import './tady-events.js'
-import './tady-market.js'
-import './tady-news.js'
+import './tady-list.js'
 
 export let router: Router
 
@@ -24,22 +23,41 @@ export class TadyRouter extends SignalWatcher(LitElement) {
     {
       name: 'news',
       path: '/news',
-      render: () =>
-        html`<tady-news
+      render: () => {
+        activeType.set('news')
+        return html`<tady-list
           .locationSelected=${watch(locationSelected)}
           .locationAuto=${watch(locationAuto)}
           radius=${radius.get()}
-        ></tady-news>`,
+          .kinds=${typeKinds['news']}
+        ></tady-list>`
+      },
     },
     {
       name: 'events',
       path: '/events',
-      render: () => html`<tady-events></tady-events>`,
+      render: () => {
+        activeType.set('events')
+        return html`<tady-list
+          .locationSelected=${watch(locationSelected)}
+          .locationAuto=${watch(locationAuto)}
+          radius=${radius.get()}
+          .kinds=${typeKinds['events']}
+        ></tady-list>`
+      },
     },
     {
       name: 'market',
       path: '/market',
-      render: () => html`<tady-market></tady-market>`,
+      render: () => {
+        activeType.set('market')
+        return html`<tady-list
+          .locationSelected=${watch(locationSelected)}
+          .locationAuto=${watch(locationAuto)}
+          radius=${radius.get()}
+          .kinds=${typeKinds['market']}
+        ></tady-list>`
+      },
     },
     { path: '/*', render: () => html`404` },
   ])
