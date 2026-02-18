@@ -75,7 +75,11 @@ export class GeoSelectGeohash extends LitElement {
   }
 
   firstUpdated() {
-    this._map = map(this._mapEl, { scrollWheelZoom: 'center' })
+    this._map = map(this._mapEl, {
+      scrollWheelZoom: 'center',
+      doubleClickZoom: 'center',
+      touchZoom: 'center',
+    })
       .setView(this.selectedLocation ?? [0, 0], this.selectedLocation ? 5 : 1)
       .addLayer(tileLayer('https://{s}.tile.osm.org/{z}/{x}/{y}.png'))
 
