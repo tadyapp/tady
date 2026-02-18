@@ -5,6 +5,8 @@ import { ndk } from '../data/ndk'
 
 export class NostrGeoSubscription implements ReactiveController {
   host: ReactiveControllerHost
+
+  private _eventsMap = new Map<string, NDKEvent>()
   events: NDKEvent[] = []
 
   private _getGeohashes: () => Iterable<string>
@@ -13,12 +15,7 @@ export class NostrGeoSubscription implements ReactiveController {
   private _subscription?: NDKSubscription
   private _pendingEvents: NDKEvent[] = []
 
-  private _flush = debounce(() => {
-    this.events = [...this.events, ...this._pendingEvents]
-    this._pendingEvents = []
-    this.host.requestUpdate()
-  }, 100)
-
+  private _flush: ReturnType<typeof debounce>
   constructor(
     host: ReactiveControllerHost,
     {
@@ -35,10 +32,14 @@ export class NostrGeoSubscription implements ReactiveController {
     this._getGeohashes = geohashes
     this._getKinds = kinds
     this._flush = debounce(() => {
-      this.events = [...this.events, ...this._pendingEvents]
+      for (const e of this._pendingEvents) {
+        this._eventsMap.set(e.id, e)
+      }
       this._pendingEvents = []
+      this.events = Array.from(this._eventsMap.values())
       this.host.requestUpdate()
     }, debounceMs)
+
     host.addController(this)
   }
 
@@ -60,13 +61,22 @@ export class NostrGeoSubscription implements ReactiveController {
   private _subscribe(geohashes: string[], kinds: number[]) {
     this._subscription?.stop()
     this._flush.cancel()
-    this.events = []
-    this._pendingEvents = []
 
-    if (geohashes.length === 0) {
-      this.host.requestUpdate()
-      return
+    const toDelete = []
+    for (const [id, event] of this._eventsMap) {
+      if (
+        !event.tags.some(tag => tag[0] === 'g' && geohashes.includes(tag[1]))
+      ) {
+        toDelete.push(id)
+      }
     }
+    toDelete.forEach(id => this._eventsMap.delete(id))
+
+    this.events = Array.from(this._eventsMap.values())
+    this._pendingEvents = []
+    this.host.requestUpdate()
+
+    if (geohashes.length === 0) return
 
     this._subscription = ndk.subscribe(
       geohashes.map(g => ({

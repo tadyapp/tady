@@ -2,7 +2,12 @@ import { Router } from '@lit-labs/router'
 import { SignalWatcher, watch } from '@lit-labs/signals'
 import { html, LitElement } from 'lit'
 import { customElement } from 'lit/decorators.js'
-import { locationAuto, locationSelected, radius } from './data/location.js'
+import {
+  activeLocationType,
+  locationAuto,
+  locationSelected,
+  radius,
+} from './data/location.js'
 import { activeType, typeKinds } from './data/things.js'
 import { navigate } from './navigate.js'
 import './tady-list.js'
@@ -28,7 +33,8 @@ export class TadyRouter extends SignalWatcher(LitElement) {
         return html`<tady-list
           .locationSelected=${watch(locationSelected)}
           .locationAuto=${watch(locationAuto)}
-          radius=${radius.get()}
+          .activeLocationType=${watch(activeLocationType)}
+          radius=${watch(radius)}
           .kinds=${typeKinds['news']}
         ></tady-list>`
       },
@@ -41,7 +47,8 @@ export class TadyRouter extends SignalWatcher(LitElement) {
         return html`<tady-list
           .locationSelected=${watch(locationSelected)}
           .locationAuto=${watch(locationAuto)}
-          radius=${radius.get()}
+          .activeLocationType=${watch(activeLocationType)}
+          radius=${watch(radius)}
           .kinds=${typeKinds['events']}
         ></tady-list>`
       },
@@ -54,7 +61,8 @@ export class TadyRouter extends SignalWatcher(LitElement) {
         return html`<tady-list
           .locationSelected=${watch(locationSelected)}
           .locationAuto=${watch(locationAuto)}
-          radius=${radius.get()}
+          .activeLocationType=${watch(activeLocationType)}
+          radius=${watch(radius)}
           .kinds=${typeKinds['market']}
         ></tady-list>`
       },

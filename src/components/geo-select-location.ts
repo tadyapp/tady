@@ -12,6 +12,8 @@ import { css, html, LitElement, type PropertyValues } from 'lit'
 import { customElement, property, query, state } from 'lit/decorators.js'
 import { ifDefined } from 'lit/directives/if-defined.js'
 import {
+  activeLocation,
+  activeLocationType,
   locationAuto,
   locationPreference,
   locationSelected,
@@ -115,31 +117,19 @@ export class GeoSelectLocation extends SignalWatcher(LitElement) {
         ? new LatLng(this._latitude, this._longitude)
         : undefined
 
-    const activeLocationType = (() => {
-      if (locationAuto.get() && locationSelected.get())
-        return locationPreference.get()
-      if (locationAuto.get()) return 'auto'
-      if (locationSelected.get()) return 'manual'
-      return locationPreference.get()
-    })()
-    const activeLocation =
-      activeLocationType === 'manual'
-        ? locationSelected.get()
-        : locationAuto.get()
-
     return html`
       <wa-button
         @click=${this.openDialog}
         appearance="plain"
         data-testid="location-select-trigger"
       >
-        ${activeLocationType === 'manual'
+        ${activeLocationType.get() === 'manual'
           ? html`<wa-icon name="hand" label="selected location"></wa-icon>`
           : html`<wa-icon
               name="location-crosshairs"
               label="automatic location"
             ></wa-icon>`}
-        ${formatLatLng(activeLocation, { decimals: 4 })} &plusmn;
+        ${formatLatLng(activeLocation.get(), { decimals: 4 })} &plusmn;
         ${formatDistance(radius.get())}
       </wa-button>
       <wa-dialog light-dismiss id="location-select-dialog">
@@ -226,6 +216,7 @@ export class GeoSelectLocation extends SignalWatcher(LitElement) {
         <leaflet-select-location
           .location=${location}
           .locationAuto=${watch(locationAuto)}
+          activeLocationType=${watch(activeLocationType)}
           .onSelectLocation=${this._handleSelectLocation}
           .places=${this.places}
           .onBoundsChange=${this.onBoundsChange}

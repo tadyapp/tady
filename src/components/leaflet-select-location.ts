@@ -34,6 +34,8 @@ export class LeafletSelectLocation extends LitElement {
   @property({ attribute: false })
   locationAuto?: LatLng
 
+  @property() activeLocationType: 'auto' | 'manual' = 'auto'
+
   @property({ type: Number })
   precision = 4
 
@@ -140,9 +142,11 @@ export class LeafletSelectLocation extends LitElement {
       _changedProperties.has('location') ||
       _changedProperties.has('locationAuto') ||
       _changedProperties.has('precision') ||
-      _changedProperties.has('radius')
+      _changedProperties.has('radius') ||
+      _changedProperties.has('activeLocationType')
     ) {
-      const coord = this.location ?? this.locationAuto
+      const coord =
+        this.activeLocationType === 'manual' ? this.location : this.locationAuto
       if (this._map && coord && this.precision && this.radius) {
         this._polygons.forEach(p => p.remove())
         this._polygons = []
