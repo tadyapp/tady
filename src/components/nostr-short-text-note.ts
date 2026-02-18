@@ -2,8 +2,11 @@ import type { NDKEvent, NDKUserProfile } from '@nostr-dev-kit/ndk'
 import { LatLng } from 'leaflet'
 import { css, html, LitElement, type PropertyValues } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
-import ngeohash from 'ngeohash'
-import { errorInDegreesToMeters, formatDistance } from '../utils/geo.js'
+import {
+  formatDistance,
+  geohash2location,
+  getEventGeohash,
+} from '../utils/geo.js'
 import './geo-direction.js'
 import './nostr-avatar.js'
 import './nostr-content.js'
@@ -16,7 +19,7 @@ export class NostrShortTextNote extends LitElement {
   nostrEvent!: NDKEvent
 
   @property({ attribute: false })
-  origin: LatLng[] = []
+  origins: { location: LatLng; label?: 'manual' | 'auto' }[] = []
 
   @state()
   private _author: NDKUserProfile | null = null
@@ -28,13 +31,7 @@ export class NostrShortTextNote extends LitElement {
   }
 
   render() {
-    const geohash = this.nostrEvent.tags
-      .filter(tag => tag[0] === 'g')
-      .map(tag => tag[1])
-      .filter(g => Boolean(g))
-      .sort((a, b) => a.length - b.length)
-      .pop()
-
+    const geohash = getEventGeohash(this.nostrEvent)
     const loc = geohash ? geohash2location(geohash) : undefined
     const dest = loc?.coords
     const precision = loc?.precision
@@ -57,10 +54,12 @@ export class NostrShortTextNote extends LitElement {
                   </span>`
                 : null}
               <div>
-                ${this.origin.map(
-                  o => html`
-                    <geo-direction .origin=${o} .dest=${dest}></geo-direction>
-                  `,
+                ${this.origins.map(
+                  o =>
+                    html`<geo-direction
+                      .origin=${o.location}
+                      .dest=${dest}
+                    ></geo-direction> `,
                 )}
                 ${typeof precision === 'number'
                   ? html`<span>&plusmn; ${formatDistance(precision)}</span>`
@@ -133,24 +132,4 @@ declare global {
   interface HTMLElementTagNameMap {
     'nostr-short-text-note': NostrShortTextNote
   }
-}
-
-export const getEventGeohash = (event: NDKEvent) => {
-  return event.tags
-    .filter(tag => tag[0] === 'g')
-    .map(tag => tag[1])
-    .filter(g => Boolean(g))
-    .sort((a, b) => a.length - b.length)
-    .pop()
-}
-
-export const geohash2location = (geohash: string) => {
-  if (!geohash) return undefined
-  const loc = ngeohash.decode(geohash)
-  const dest = new LatLng(loc.latitude, loc.longitude)
-  const locError = errorInDegreesToMeters(loc)
-  const precision =
-    locError && (locError.latitude ** 2 + locError.longitude ** 2) ** 0.5
-
-  return { coords: dest, precision }
 }

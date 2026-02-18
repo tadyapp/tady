@@ -5,10 +5,10 @@ import { customElement, state } from 'lit/decorators.js'
 import { classMap } from 'lit/directives/class-map.js'
 import ngeohash from 'ngeohash'
 import './components/geo-select-location.js'
-import { getEventGeohash } from './components/nostr-short-text-note.js'
 import { NostrGeoSubscription } from './controllers/geohash-subscription.js'
 import { activeType, typeKinds } from './data/things.js'
 import './tady-router.js'
+import { getEventGeohash } from './utils/geo.js'
 
 /**
  * Layout
@@ -44,12 +44,6 @@ export class TadyLayout extends SignalWatcher(LitElement) {
   })
 
   render() {
-    // const kindMap = new Map<number, number>()
-    // for (const event of this._events.events) {
-    //   kindMap.set(event.kind, (kindMap.get(event.kind) ?? 0) + 1)
-    // }
-    // console.log(kindMap)
-
     const places: { id: string; geohash: string }[] = this._events.events.map(
       e => ({
         id: e.id,

@@ -1,5 +1,6 @@
+import type { NDKEvent } from '@nostr-dev-kit/ndk'
 import { getDistance } from 'geolib'
-import type { LatLng, LatLngExpression } from 'leaflet'
+import { LatLng, type LatLngExpression } from 'leaflet'
 import ngeohash from 'ngeohash'
 
 export function formatLatLng(
@@ -179,4 +180,23 @@ export const geohash2polygon = (gh: string): LatLngExpression[] => {
     [lat1, lng1],
     [lat1, lng0],
   ]
+}
+
+export const geohash2location = (geohash: string) => {
+  const loc = ngeohash.decode(geohash)
+  const dest = new LatLng(loc.latitude, loc.longitude)
+  const locError = errorInDegreesToMeters(loc)
+  const precision =
+    locError && (locError.latitude ** 2 + locError.longitude ** 2) ** 0.5
+
+  return { coords: dest, precision }
+}
+
+export const getEventGeohash = (event: NDKEvent) => {
+  return event.tags
+    .filter(tag => tag[0] === 'g')
+    .map(tag => tag[1])
+    .filter(g => Boolean(g))
+    .sort((a, b) => a.length - b.length)
+    .pop()
 }

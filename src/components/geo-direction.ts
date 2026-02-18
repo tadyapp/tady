@@ -19,7 +19,7 @@ export class GeoDirection extends LitElement {
     const distance = getDistance(this.origin, this.dest)
     const bearing = getGreatCircleBearing(this.origin, this.dest)
 
-    return html` <wa-icon name="arrow-up-long" rotate=${bearing}></wa-icon
+    return html`<wa-icon name="arrow-up-long" rotate=${bearing}></wa-icon
       ><span>${formatDistance(distance)}</span>`
   }
 }
