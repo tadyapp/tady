@@ -9,8 +9,9 @@ import {
   radius,
 } from './data/location.js'
 import { activeType, typeKinds } from './data/things.js'
-import { navigate } from './navigate.js'
 import './tady-list.js'
+import './tady-news.js'
+import { navigate } from './utils/navigate.js'
 
 export let router: Router
 
@@ -30,13 +31,7 @@ export class TadyRouter extends SignalWatcher(LitElement) {
       path: '/news',
       render: () => {
         activeType.set('news')
-        return html`<tady-list
-          .locationSelected=${watch(locationSelected)}
-          .locationAuto=${watch(locationAuto)}
-          .activeLocationType=${watch(activeLocationType)}
-          radius=${watch(radius)}
-          .kinds=${typeKinds['news']}
-        ></tady-list>`
+        return html`<tady-news></tady-news>`
       },
     },
     {

@@ -200,3 +200,11 @@ export const getEventGeohash = (event: NDKEvent) => {
     .sort((a, b) => a.length - b.length)
     .pop()
 }
+export function eventDistance(event: NDKEvent, origin: LatLng) {
+  const geohash = getEventGeohash(event)
+  if (geohash) {
+    const eventLocation = geohash2location(geohash).coords
+    return getDistance(eventLocation, origin)
+  }
+  return 100000000 // more than any distance on earth
+}
