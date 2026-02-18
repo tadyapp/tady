@@ -2,6 +2,7 @@ import type { NDKEvent, NDKUserProfile } from '@nostr-dev-kit/ndk'
 import { LatLng } from 'leaflet'
 import { css, html, LitElement, type PropertyValues } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
+import type { LocationType } from '../data/location.js'
 import {
   formatDistance,
   geohash2location,
@@ -19,7 +20,7 @@ export class NostrShortTextNote extends LitElement {
   nostrEvent!: NDKEvent
 
   @property({ attribute: false })
-  origins: { location: LatLng; label?: 'manual' | 'auto' }[] = []
+  origins: { location: LatLng; type?: LocationType }[] = []
 
   @state()
   private _author: NDKUserProfile | null = null

@@ -18,6 +18,7 @@ import {
   locationPreference,
   locationSelected,
   radius,
+  type LocationType,
 } from '../data/location'
 import { formatDistance, formatLatLng } from '../utils/geo.js'
 import './leaflet-select-location.js'
@@ -106,7 +107,7 @@ export class GeoSelectLocation extends SignalWatcher(LitElement) {
 
   private handleChangePreference(e: Event) {
     const target = e.target as HTMLInputElement
-    locationPreference.set(target.value as 'auto' | 'manual')
+    locationPreference.set(target.value as LocationType)
   }
 
   render() {
@@ -117,17 +118,25 @@ export class GeoSelectLocation extends SignalWatcher(LitElement) {
         ? new LatLng(this._latitude, this._longitude)
         : undefined
 
+    const MIN_RADIUS = 1000
+    const MAX_RADIUS = 500_000
+
     return html`
       <wa-button
         @click=${this.openDialog}
-        appearance="plain"
+        appearance="outlined"
         data-testid="location-select-trigger"
       >
         ${activeLocationType.get() === 'manual'
-          ? html`<wa-icon name="hand" label="selected location"></wa-icon>`
+          ? html`<wa-icon
+              name="hand"
+              label="selected location"
+              slot="start"
+            ></wa-icon>`
           : html`<wa-icon
               name="location-crosshairs"
               label="automatic location"
+              slot="start"
             ></wa-icon>`}
         ${formatLatLng(activeLocation.get(), { decimals: 4 })} &plusmn;
         ${formatDistance(radius.get())}
@@ -202,9 +211,9 @@ export class GeoSelectLocation extends SignalWatcher(LitElement) {
           m
           <wa-slider
             with-tooltip
-            step=${0.1}
-            min=${2}
-            max=${Math.log10(500000)}
+            step=${0.05}
+            min=${Math.log10(MIN_RADIUS)}
+            max=${Math.log10(MAX_RADIUS)}
             .valueFormatter=${(value: number) => formatDistance(10 ** value)}
             .value=${Math.log10(radius.get())}
             @input=${(e: Event) => {

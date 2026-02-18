@@ -8,6 +8,7 @@ import { customElement, property, state } from 'lit/decorators.js'
 import { repeat } from 'lit/directives/repeat.js'
 import './components/nostr-short-text-note.js'
 import { NostrGeoSubscription } from './controllers/geohash-subscription.js'
+import type { LocationType } from './data/location.js'
 import './tady-create-news.js'
 import {
   geohash2location,
@@ -20,7 +21,7 @@ export class TadyList extends LitElement {
   @property({ attribute: false }) locationAuto?: LatLng
   @property({ attribute: false }) locationSelected?: LatLng
   @property({ type: Number }) radius!: number
-  @property({ attribute: false }) activeLocationType: 'auto' | 'manual' = 'auto'
+  @property({ attribute: false }) activeLocationType: LocationType = 'auto'
 
   @property({ type: Array }) kinds: number[] = [0]
 
@@ -85,12 +86,12 @@ export class TadyList extends LitElement {
   })
 
   render() {
-    const origins: { label?: 'manual' | 'auto'; location: LatLng }[] = []
+    const origins: { type?: LocationType; location: LatLng }[] = []
 
     if (this.locationSelected && this.activeLocationType === 'manual')
-      origins.push({ location: this.locationSelected, label: 'manual' })
+      origins.push({ location: this.locationSelected, type: 'manual' })
     if (this.locationAuto)
-      origins.push({ location: this.locationAuto, label: 'auto' })
+      origins.push({ location: this.locationAuto, type: 'auto' })
 
     let filteredEvents = [...this._events.events]
 
@@ -116,7 +117,7 @@ export class TadyList extends LitElement {
               aria-pressed=${active ? 'true' : 'false'}
               size="small"
               pill
-              appearance=${active ? 'accent' : 'plain'}
+              appearance=${active ? 'accent' : 'outlined'}
               @click=${() => {
                 const nextFilters = new Set(this.selectedFilters)
                 if (nextFilters.has(key)) nextFilters.delete(key)

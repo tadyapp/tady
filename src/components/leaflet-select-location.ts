@@ -19,6 +19,7 @@ import leafletStyles from 'leaflet/dist/leaflet.css?inline'
 import { css, html, LitElement, unsafeCSS, type PropertyValues } from 'lit'
 import { customElement, property, query, state } from 'lit/decorators.js'
 import ngeohash from 'ngeohash'
+import type { LocationType } from '../data/location.js'
 import {
   geohash2polygon,
   getCircleGeohashesInRadius,
@@ -34,7 +35,7 @@ export class LeafletSelectLocation extends LitElement {
   @property({ attribute: false })
   locationAuto?: LatLng
 
-  @property() activeLocationType: 'auto' | 'manual' = 'auto'
+  @property() activeLocationType: LocationType = 'auto'
 
   @property({ type: Number })
   precision = 4

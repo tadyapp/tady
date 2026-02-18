@@ -83,7 +83,7 @@ export class TadyLayout extends SignalWatcher(LitElement) {
       display: flex;
       flex-wrap: wrap;
       /* flex-direction: column; */
-      gap: 1rem;
+      gap: 0.25rem 1rem;
       margin-bottom: 1rem;
 
       nav {
@@ -91,7 +91,7 @@ export class TadyLayout extends SignalWatcher(LitElement) {
         gap: 1rem;
 
         a {
-          font-size: 2rem;
+          font-size: 1.5rem;
 
           &.active {
             color: pink;
