@@ -3,8 +3,8 @@ import '@awesome.me/webawesome/dist/components/button/button.styles.js'
 import { css, html, LitElement } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
 import { repeat } from 'lit/directives/repeat.js'
+import './components/create/tady-create-news.js'
 import './components/nostr-short-text-note.js'
-import './tady-create-news.js'
 import type { EventFilter, EventFilterConfig } from './utils/fiilter.js'
 
 export type FilterChangeEvent = CustomEvent<{ apply: EventFilter }>

@@ -157,7 +157,7 @@ test.describe('Create a note (news)', () => {
 
     await page.getByRole('button', { name: 'submit' }).click()
 
-    await page.getByRole('button', { name: 'post anonymously' }).click()
+    await page.getByRole('button', { name: 'anonymous' }).click()
 
     await expect(page.getByTestId('create-news-form')).not.toBeVisible()
     await expect(page.getByTestId('news-item')).toHaveCount(3)

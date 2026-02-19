@@ -10,11 +10,11 @@ import {
   NDKPrivateKeySigner,
   type NDKSigner,
 } from '@nostr-dev-kit/ndk'
-import { css, html, LitElement } from 'lit'
+import { html, LitElement } from 'lit'
 import { customElement, query, state } from 'lit/decorators.js'
-import './components/geo-select-geohash'
-import { locationAuto, locationSelected } from './data/location'
-import { ndk } from './data/ndk'
+import { locationAuto, locationSelected } from '../../data/location'
+import { ndk } from '../../data/ndk'
+import '../geo-select-geohash'
 
 interface FormValues {
   content: string
@@ -141,12 +141,12 @@ export class TadyCreateNews extends SignalWatcher(LitElement) {
       </wa-dialog>`
   }
 
-  static styles = css`
-    ::part(dialog) {
-      background-color: var(--background-color);
-      color: var(--text-color);
-    }
-  `
+  // static styles = css`
+  //   ::part(dialog) {
+  //     background-color: var(--background-color);
+  //     color: var(--text-color);
+  //   }
+  // `
 }
 
 export const substrings = (s: string) =>

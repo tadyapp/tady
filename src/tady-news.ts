@@ -1,6 +1,7 @@
 import { SignalWatcher, watch } from '@lit-labs/signals'
 import { css, html, LitElement } from 'lit'
 import { customElement, state } from 'lit/decorators.js'
+import './components/create/tady-create-news.js'
 import {
   activeLocation,
   activeLocationType,
@@ -9,7 +10,6 @@ import {
   radius,
 } from './data/location'
 import { typeKinds } from './data/things'
-import './tady-create-news.js'
 import './tady-filters.js'
 import type { FilterChangeEvent } from './tady-filters.js'
 import './tady-list.js'
