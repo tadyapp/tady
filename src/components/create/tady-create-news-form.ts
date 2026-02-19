@@ -3,9 +3,11 @@ import '@awesome.me/webawesome/dist/components/dialog/dialog.js'
 import '@awesome.me/webawesome/dist/components/icon/icon.js'
 import '@awesome.me/webawesome/dist/styles/themes/default.css'
 import { SignalWatcher } from '@lit-labs/signals'
+import { NDKEvent } from '@nostr-dev-kit/ndk'
 import { html, LitElement } from 'lit'
 import { customElement, state } from 'lit/decorators.js'
 import { locationAuto, locationSelected } from '../../data/location.js'
+import { substrings } from '../../utils/geo.js'
 import '../geo-select-geohash.js'
 import './tady-identity-select.js'
 
@@ -14,7 +16,7 @@ export interface NewsFormValues {
   geohash: string
 }
 
-export type NewsFormSubmitEvent = CustomEvent<NewsFormValues>
+export type NDKEventSubmitEvent = CustomEvent<NDKEvent>
 
 @customElement('tady-create-news-form')
 export class TadyCreateNewsForm extends SignalWatcher(LitElement) {
@@ -28,22 +30,21 @@ export class TadyCreateNewsForm extends SignalWatcher(LitElement) {
       formData.entries(),
     ) as unknown as NewsFormValues
 
-    // const event = new NDKEvent(undefined, {
-    //   kind: 1,
-    //   content: values.content,
-    //   tags: values.geohash
-    //     ? substrings(values.geohash).map(g => ['g', g])
-    //     : undefined,
-    // })
+    const event = new NDKEvent(undefined, {
+      kind: 1,
+      content: values.content,
+      tags: values.geohash
+        ? substrings(values.geohash).map(g => ['g', g])
+        : undefined,
+    })
 
-    console.log('dispatching form-submit')
-    this.dispatchEvent(
-      new CustomEvent('form-submit', {
-        detail: values,
-        bubbles: true,
-        composed: true,
-      }),
-    )
+    const submitEvent: NDKEventSubmitEvent = new CustomEvent('form-submit', {
+      detail: event,
+      bubbles: true,
+      composed: true,
+    })
+    console.log('dispatching form-submit', submitEvent.detail)
+    this.dispatchEvent(submitEvent)
   }
 
   private _reset() {

@@ -1,43 +1,50 @@
 // tady-authenticated-form.ts
 
-import type { NDKSigner } from '@nostr-dev-kit/ndk'
+import { type NDKEvent } from '@nostr-dev-kit/ndk'
 import { html, LitElement } from 'lit'
 import { customElement, state } from 'lit/decorators.js'
+import type { NDKEventSubmitEvent } from './tady-create-news-form'
 import type { IdentitySelectedEvent } from './tady-identity-select'
 
-export type AuthenticatedSubmitEvent<T = unknown> = CustomEvent<{
-  values: T
-  signer: NDKSigner
-}>
+export type AuthenticatedSubmitEvent = CustomEvent<NDKEvent>
 
 // Intercepts form-submit, asks for identity, re-emits with signer
 @customElement('tady-authenticated-form')
 export class TadyAuthenticatedForm extends LitElement {
   @state() private _identityOpen = false
-  @state() private _pendingDetail: unknown
+  @state() private _pendingEvent?: NDKEvent
 
-  private _handleFormSubmit(e: CustomEvent) {
-    console.log('handling form submit')
+  private _handleFormSubmit(e: NDKEventSubmitEvent) {
+    console.log('handling form submit', e.detail)
     e.stopPropagation()
-    this._pendingDetail = e.detail
+    this._pendingEvent = e.detail
     this._identityOpen = true
   }
 
-  private _handleIdentity(e: IdentitySelectedEvent) {
-    this._identityOpen = false
-    const customEvent: AuthenticatedSubmitEvent = new CustomEvent(
-      'authenticated-submit',
-      {
-        detail: {
-          values: this._pendingDetail,
-          signer: e.detail.signer,
+  private async _handleIdentity(e: IdentitySelectedEvent) {
+    try {
+      this._identityOpen = false
+      await this._pendingEvent?.sign(e.detail.signer)
+      const authenticatedEvent: AuthenticatedSubmitEvent = new CustomEvent(
+        'authenticated-submit',
+        {
+          detail: this._pendingEvent,
+          bubbles: true,
+          composed: true,
         },
-        bubbles: true,
-        composed: true,
-      },
-    )
+      )
 
-    this.dispatchEvent(customEvent)
+      this.dispatchEvent(authenticatedEvent)
+    } catch (e) {
+      this.dispatchEvent(
+        new CustomEvent('authentication-error', {
+          detail: e,
+          bubbles: true,
+          composed: true,
+        }),
+      )
+      alert(e instanceof Error ? e.message : e)
+    }
   }
 
   private _handleCancel() {

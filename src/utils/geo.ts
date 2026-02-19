@@ -208,3 +208,6 @@ export function eventDistance(event: NDKEvent, origin: LatLng) {
   }
   return 100000000 // more than any distance on earth
 }
+
+export const substrings = (s: string) =>
+  Array.from({ length: s.length }, (_, i) => s.slice(0, s.length - i))
