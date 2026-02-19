@@ -3,7 +3,7 @@ import { customElement } from 'lit/decorators.js'
 import { ndk } from '../../data/ndk'
 import type { AuthenticatedSubmitEvent } from './tady-authenticated-form'
 
-// tady-nostr-publisher.ts
+// Listens for authenticated NDKEvent, and publishes it.
 @customElement('tady-nostr-publisher')
 export class TadyNostrPublisher extends LitElement {
   private async _handleAuthenticatedSubmit(e: AuthenticatedSubmitEvent) {

@@ -1,5 +1,3 @@
-// tady-authenticated-form.ts
-
 import { type NDKEvent } from '@nostr-dev-kit/ndk'
 import { html, LitElement } from 'lit'
 import { customElement, state } from 'lit/decorators.js'
@@ -8,7 +6,7 @@ import type { IdentitySelectedEvent } from './tady-identity-select'
 
 export type AuthenticatedSubmitEvent = CustomEvent<NDKEvent>
 
-// Intercepts form-submit, asks for identity, re-emits with signer
+// Intercepts NDKEvent from form, asks for identity, re-emits the NDKEvent, signed
 @customElement('tady-authenticated-form')
 export class TadyAuthenticatedForm extends LitElement {
   @state() private _identityOpen = false

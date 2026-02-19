@@ -1,4 +1,3 @@
-// tady-form-dialog.ts
 import '@awesome.me/webawesome/dist/components/dialog/dialog.js'
 import type WaDialog from '@awesome.me/webawesome/dist/components/dialog/dialog.js'
 import { html, LitElement } from 'lit'
