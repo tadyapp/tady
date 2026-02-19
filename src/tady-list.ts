@@ -7,7 +7,6 @@ import { repeat } from 'lit/directives/repeat.js'
 import './components/nostr-short-text-note.js'
 import { NostrGeoSubscription } from './controllers/geohash-subscription.js'
 import type { LocationType } from './data/location.js'
-import './tady-create-news.js'
 import type { EventFilter } from './utils/fiilter.js'
 import { getCircleGeohashesInRadius } from './utils/geo.js'
 
