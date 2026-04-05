@@ -1,12 +1,15 @@
 import '@awesome.me/webawesome/dist/components/button/button.js'
 import '@awesome.me/webawesome/dist/components/button/button.styles.js'
+import type { NDKEvent } from '@nostr-dev-kit/ndk'
 import { LatLng } from 'leaflet'
 import { css, html, LitElement } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 import { repeat } from 'lit/directives/repeat.js'
+import './components/nostr-classified-listing.js'
 import './components/nostr-short-text-note.js'
 import { NostrGeoSubscription } from './controllers/geohash-subscription.js'
 import type { LocationType } from './data/location.js'
+import { typeKinds } from './data/things.js'
 import type { EventFilter } from './utils/fiilter.js'
 import { getCircleGeohashesInRadius } from './utils/geo.js'
 
@@ -38,6 +41,25 @@ export class TadyList extends LitElement {
     kinds: () => this.kinds,
   })
 
+  private renderEvent(
+    event: NDKEvent,
+    origins: { location: LatLng; type?: LocationType }[],
+  ) {
+    if (typeKinds.news.includes(event.kind)) {
+      return html`<nostr-short-text-note
+        .nostrEvent=${event}
+        .origins=${origins}
+      ></nostr-short-text-note>`
+    } else if (typeKinds.market.includes(event.kind)) {
+      return html`<nostr-classified-listing
+        .nostrEvent=${event}
+        .origins=${origins}
+      ></nostr-classified-listing>`
+    } else {
+      return html`<pre>${JSON.stringify(event.rawEvent())}</pre>`
+    }
+  }
+
   render() {
     const origins: { type?: LocationType; location: LatLng }[] = []
 
@@ -51,11 +73,8 @@ export class TadyList extends LitElement {
         this.filter(this._events.events),
         event => event.id,
         event => html`
-          <li data-testid="news-item">
-            <nostr-short-text-note
-              .nostrEvent=${event}
-              .origins=${origins}
-            ></nostr-short-text-note>
+          <li data-testid="tady-list-item">
+            ${this.renderEvent(event, origins)}
           </li>
         `,
       )}

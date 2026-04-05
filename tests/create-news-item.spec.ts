@@ -122,7 +122,7 @@ test.describe('Create a note (news)', () => {
   }) => {
     await context.setGeolocation({ latitude: 49, longitude: 14 })
     await page.getByRole('link', { name: 'news' }).click()
-    await expect(page.getByTestId('news-item')).toHaveCount(2)
+    await expect(page.getByTestId('tady-list-item')).toHaveCount(2)
     await page.getByRole('button', { name: 'create news' }).click()
     await page.getByRole('textbox', { name: 'content' }).fill('some text here')
     await page.locator('#geohash-precision #thumb').click()
@@ -138,13 +138,13 @@ test.describe('Create a note (news)', () => {
     await page.getByRole('button', { name: 'sign in' }).click()
 
     await expect(page.getByTestId('create-news-form')).not.toBeVisible()
-    await expect(page.getByTestId('news-item')).toHaveCount(3)
+    await expect(page.getByTestId('tady-list-item')).toHaveCount(3)
   })
   test.use({ permissions: ['geolocation'] })
   test('successful submit with anonymous user', async ({ page, context }) => {
     await context.setGeolocation({ latitude: 49, longitude: 14 })
     await page.getByRole('link', { name: 'news' }).click()
-    await expect(page.getByTestId('news-item')).toHaveCount(2)
+    await expect(page.getByTestId('tady-list-item')).toHaveCount(2)
     await page.getByRole('button', { name: 'create news' }).click()
     await page.getByRole('textbox', { name: 'content' }).fill('some text here')
     await page.locator('#geohash-precision #thumb').click()
@@ -160,7 +160,7 @@ test.describe('Create a note (news)', () => {
     await page.getByRole('button', { name: 'anonymous' }).click()
 
     await expect(page.getByTestId('create-news-form')).not.toBeVisible()
-    await expect(page.getByTestId('news-item')).toHaveCount(3)
+    await expect(page.getByTestId('tady-list-item')).toHaveCount(3)
   })
   test.fixme('show error when content is empty', async () => {})
   test.fixme('show error when location is not selected', async () => {})

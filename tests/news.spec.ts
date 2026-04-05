@@ -1,10 +1,11 @@
 import NDK from '@nostr-dev-kit/ndk'
-import { expect, Page, test } from '@playwright/test'
+import { expect, test } from '@playwright/test'
 import {
   createEvent,
   createUser,
   destroyRelays,
   prepareRelays,
+  selectLocation,
 } from './helpers'
 
 test.describe('News at a location', () => {
@@ -46,24 +47,10 @@ test.describe('News at a location', () => {
     })
   })
 
-  const selectLocation = async (
-    page: Page,
-    latitude: number,
-    longitude: number,
-  ) => {
-    await page.getByTestId('location-select-trigger').click()
-    await page
-      .getByRole('spinbutton', { name: 'latitude' })
-      .fill(String(latitude))
-    await page
-      .getByRole('spinbutton', { name: 'longitude' })
-      .fill(String(longitude))
-  }
-
   test('show news at a selected location', async ({ page }) => {
     await page.getByRole('link', { name: 'news' }).click()
     await expect(page).toHaveURL('/news')
     await selectLocation(page, 50.087496, 14.421181)
-    await expect(page.getByTestId('news-item')).toHaveCount(3)
+    await expect(page.getByTestId('tady-list-item')).toHaveCount(3)
   })
 })

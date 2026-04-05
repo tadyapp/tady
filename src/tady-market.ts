@@ -1,7 +1,7 @@
 import { SignalWatcher, watch } from '@lit-labs/signals'
 import { css, html, LitElement } from 'lit'
 import { customElement, state } from 'lit/decorators.js'
-import './components/create/tady-create-news.js'
+import './components/create/tady-create-listing.js'
 import {
   activeLocationType,
   locationAuto,
@@ -29,7 +29,7 @@ export class TadyMarket extends SignalWatcher(LitElement) {
         .locationAuto=${watch(locationAuto)}
         .activeLocationType=${watch(activeLocationType)}
         radius=${watch(radius)}
-        .kinds=${typeKinds['market']}
+        .kinds=${typeKinds.market}
         .filter=${this._filter}
       ></tady-list>
       <tady-create-listing></tady-create-listing>`

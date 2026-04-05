@@ -108,3 +108,18 @@ export const destroyRelays = async (ndk?: NDK) => {
     }
   await stopRelay()
 }
+
+export const selectLocation = async (
+  page: Page,
+  latitude: number,
+  longitude: number,
+) => {
+  await page.getByTestId('location-select-trigger').click()
+  await page
+    .getByRole('spinbutton', { name: 'latitude' })
+    .fill(String(latitude))
+  await page
+    .getByRole('spinbutton', { name: 'longitude' })
+    .fill(String(longitude))
+  await page.getByRole('button', { name: 'Close' }).click()
+}
