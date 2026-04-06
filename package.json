@@ -1,5 +1,14 @@
 {
-  "name": "tady-lit",
+  "name": "tady",
+  "description": "Your local stuff. Nostr client with local notes, events, and market.",
+  "homepage": "https://tady.app",
+  "keywords": [
+    "decentralized",
+    "real-world",
+    "local",
+    "social-network",
+    "nostr"
+  ],
   "private": true,
   "version": "0.0.0",
   "type": "module",
