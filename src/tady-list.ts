@@ -5,6 +5,7 @@ import { LatLng } from 'leaflet'
 import { css, html, LitElement } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 import { repeat } from 'lit/directives/repeat.js'
+import './components/nostr-calendar-event.js'
 import './components/nostr-classified-listing.js'
 import './components/nostr-short-text-note.js'
 import { NostrGeoSubscription } from './controllers/geohash-subscription.js'
@@ -50,6 +51,11 @@ export class TadyList extends LitElement {
         .nostrEvent=${event}
         .origins=${origins}
       ></nostr-short-text-note>`
+    } else if (typeKinds.events.includes(event.kind)) {
+      return html`<nostr-calendar-event
+        .nostrEvent=${event}
+        .origins=${origins}
+      ></nostr-calendar-event>`
     } else if (typeKinds.market.includes(event.kind)) {
       return html`<nostr-classified-listing
         .nostrEvent=${event}

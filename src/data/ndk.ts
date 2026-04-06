@@ -2,7 +2,7 @@
 import { NDKBlossom } from '@nostr-dev-kit/blossom'
 import NDKCacheAdapterDexie from '@nostr-dev-kit/cache-dexie'
 import NDK, { NDKBlossomList } from '@nostr-dev-kit/ndk'
-import { blossomServers, relays } from '../config'
+import { blossomServers, relays } from '../config/index.js'
 
 const cacheAdapter = new NDKCacheAdapterDexie({
   dbName: 'tady-app',
