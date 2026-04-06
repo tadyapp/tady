@@ -92,9 +92,11 @@ export class TadyLayout extends SignalWatcher(LitElement) {
 
         a {
           font-size: 1.5rem;
+          text-decoration: none;
 
           &.active {
             color: pink;
+            text-decoration: underline;
           }
         }
       }
