@@ -39,6 +39,21 @@ export class SnortFragment extends LitElement {
   @property({ attribute: false })
   fragment!: ParsedFragment
 
+  private _renderMedia() {
+    const data = this.fragment.data as
+      | {
+          thumb?: string
+          url?: string
+          alt?: string
+        }
+      | undefined
+    return html`<img
+      class="media"
+      src=${data?.thumb ?? data?.url ?? this.fragment.content}
+      alt=${ifDefined(data?.alt)}
+    />`
+  }
+
   render() {
     switch (this.fragment.type) {
       case FragmentType.Text: {
@@ -49,25 +64,16 @@ export class SnortFragment extends LitElement {
       case FragmentType.Hashtag: {
         return html`<span class="hashtag">#${this.fragment.content}</span>`
       }
-      case FragmentType.Media: {
-        const data = this.fragment.data as
-          | {
-              thumb?: string
-              url?: string
-              alt?: string
-            }
-          | undefined
-
-        return html`<img
-          class="media"
-          src=${data?.thumb ?? data?.url ?? this.fragment.content}
-          alt=${ifDefined(data?.alt)}
-        />`
-      }
       case FragmentType.Link: {
+        if (this.fragment.mimeType?.startsWith('image/'))
+          return this._renderMedia()
+
         return html`<a href=${this.fragment.content}
           >${this.fragment.content}</a
         >`
+      }
+      case FragmentType.Media: {
+        return this._renderMedia()
       }
       case FragmentType.Mention: {
         return html`<nostr-mention

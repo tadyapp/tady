@@ -7,16 +7,20 @@ import { NDKEvent } from '@nostr-dev-kit/ndk'
 import { html, LitElement } from 'lit'
 import { customElement, state } from 'lit/decorators.js'
 import { locationAuto, locationSelected } from '../../data/location.js'
+import { blossom } from '../../data/ndk.js'
 import { substrings } from '../../utils/geo.js'
 import '../geo-select-geohash.js'
-import './tady-identity-select.js'
 
 export interface NewsFormValues {
   content: string
   geohash: string
+  media: File[]
 }
 
-export type NDKEventSubmitEvent = CustomEvent<NDKEvent>
+export type NDKEventSubmitEvent = CustomEvent<{
+  event: NDKEvent
+  media: File[]
+}>
 
 @customElement('tady-create-news-form')
 export class TadyCreateNewsForm extends SignalWatcher(LitElement) {
@@ -26,9 +30,12 @@ export class TadyCreateNewsForm extends SignalWatcher(LitElement) {
     e.preventDefault()
     const form = e.target as HTMLFormElement
     const formData = new FormData(form)
-    const values = Object.fromEntries(
-      formData.entries(),
-    ) as unknown as NewsFormValues
+    const values = {
+      ...Object.fromEntries(formData.entries()),
+      media: formData
+        .getAll('media')
+        .filter(f => f instanceof File && f.name && f.size),
+    } as unknown as NewsFormValues
 
     const event = new NDKEvent(undefined, {
       kind: 1,
@@ -39,7 +46,10 @@ export class TadyCreateNewsForm extends SignalWatcher(LitElement) {
     })
 
     const submitEvent: NDKEventSubmitEvent = new CustomEvent('form-submit', {
-      detail: event,
+      detail: {
+        event,
+        media: values.media,
+      },
       bubbles: true,
       composed: true,
     })
@@ -57,9 +67,29 @@ export class TadyCreateNewsForm extends SignalWatcher(LitElement) {
     )
   }
 
-  private _change(e: Event) {
+  private async _change(e: Event) {
     const input = e.target as HTMLInputElement
-    this.values = { ...this.values, [input.name]: input.value }
+    const value =
+      input.type === 'file' ? Array.from(input.files || []) : input.value
+    const nextValues = { ...this.values, [input.name]: value }
+
+    // include file identifiers within the content
+    if (
+      input.type === 'file' &&
+      input.name === 'media' &&
+      Array.isArray(value) &&
+      value.length > 0 &&
+      value[0] instanceof File
+    ) {
+      const calculator = blossom.getSHA256Calculator()
+
+      nextValues.content ??= ''
+      for (const medium of value) {
+        nextValues.content += `\n${(await calculator.calculateSha256(medium)).slice(0, 16)}-${medium.name}`
+      }
+    }
+
+    this.values = nextValues
   }
 
   render() {
@@ -72,8 +102,16 @@ export class TadyCreateNewsForm extends SignalWatcher(LitElement) {
         @input=${this._change}
       >
         <div>
+          <label>Media</label>
+          <input type="file" multiple accept="image/*,video/*" name="media" />
+        </div>
+        <div>
           <label for="news-form-content">Content</label>
-          <textarea id="news-form-content" name="content"></textarea>
+          <textarea
+            id="news-form-content"
+            name="content"
+            .value=${this.values.content ?? ''}
+          ></textarea>
         </div>
         <geo-select-geohash
           name="geohash"

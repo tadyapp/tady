@@ -1,32 +1,45 @@
-import { type NDKEvent } from '@nostr-dev-kit/ndk'
+import { type NDKEvent, type NDKSigner } from '@nostr-dev-kit/ndk'
 import { html, LitElement } from 'lit'
 import { customElement, state } from 'lit/decorators.js'
 import type { NDKEventSubmitEvent } from './tady-create-news-form'
+import './tady-identity-select'
 import type { IdentitySelectedEvent } from './tady-identity-select'
 
-export type AuthenticatedSubmitEvent = CustomEvent<NDKEvent>
+export type AuthenticatedSubmitEvent = CustomEvent<{
+  event: NDKEvent
+  media: File[]
+  signer: NDKSigner
+}>
 
 // Intercepts NDKEvent from form, asks for identity, re-emits the NDKEvent, signed
 @customElement('tady-authenticated-form')
 export class TadyAuthenticatedForm extends LitElement {
   @state() private _identityOpen = false
   @state() private _pendingEvent?: NDKEvent
+  @state() private _media?: File[]
 
   private _handleFormSubmit(e: NDKEventSubmitEvent) {
     console.log('handling form submit', e.detail)
     e.stopPropagation()
-    this._pendingEvent = e.detail
+    this._pendingEvent = e.detail.event
+    this._media = e.detail.media ?? []
     this._identityOpen = true
   }
 
   private async _handleIdentity(e: IdentitySelectedEvent) {
     try {
       this._identityOpen = false
-      await this._pendingEvent?.sign(e.detail.signer)
+      if (!this._pendingEvent || !this._media || !e.detail.signer)
+        throw new Error('Missing data for form authentication')
+
       const authenticatedEvent: AuthenticatedSubmitEvent = new CustomEvent(
         'authenticated-submit',
         {
-          detail: this._pendingEvent,
+          detail: {
+            event: this._pendingEvent,
+            signer: e.detail.signer,
+            media: this._media,
+          },
           bubbles: true,
           composed: true,
         },

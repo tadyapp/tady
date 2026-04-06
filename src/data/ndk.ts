@@ -1,7 +1,8 @@
 // TODO replace with @nostr-dev-kit/cache-dexie after https://github.com/nostr-dev-kit/ndk/pull/377 gets published
-import NDKCacheAdapterDexie from '@mrkvon/ndk-cache-dexie'
-import NDK from '@nostr-dev-kit/ndk'
-import { relays } from '../config'
+import { NDKBlossom } from '@nostr-dev-kit/blossom'
+import NDKCacheAdapterDexie from '@nostr-dev-kit/cache-dexie'
+import NDK, { NDKBlossomList } from '@nostr-dev-kit/ndk'
+import { blossomServers, relays } from '../config'
 
 const cacheAdapter = new NDKCacheAdapterDexie({
   dbName: 'tady-app',
@@ -12,6 +13,11 @@ export const ndk = new NDK({
   cacheAdapter,
   explicitRelayUrls: relays,
 })
+
+export const blossom = new NDKBlossom(ndk)
+const serverList = new NDKBlossomList(ndk)
+serverList.servers = blossomServers
+blossom.serverList = serverList
 
 ndk
   .connect()
