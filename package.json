@@ -2,6 +2,7 @@
   "name": "tady",
   "description": "Your local stuff. Nostr client with local notes, events, and market.",
   "homepage": "https://tady.app",
+  "license": "MIT",
   "keywords": [
     "decentralized",
     "real-world",
