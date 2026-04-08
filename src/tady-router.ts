@@ -9,6 +9,7 @@ import {
   radius,
 } from './data/location.js'
 import { activeType, typeKinds } from './data/things.js'
+import './tady-about.js'
 import './tady-list.js'
 import './tady-notes.js'
 import { navigate } from './utils/navigate.js'
@@ -61,6 +62,11 @@ export class TadyRouter extends SignalWatcher(LitElement) {
           .kinds=${typeKinds['market']}
         ></tady-list>`
       },
+    },
+    {
+      name: 'about',
+      path: '/about',
+      render: () => html`<tady-about></tady-about>`,
     },
     { path: '/*', render: () => html`404` },
   ])

@@ -75,6 +75,7 @@ export class TadyLayout extends SignalWatcher(LitElement) {
         ></geo-select-location>
       </header>
       <main><tady-router></tady-router></main>
+      <footer><a href="/about">about</a></footer>
     `
   }
 
@@ -99,6 +100,19 @@ export class TadyLayout extends SignalWatcher(LitElement) {
             text-decoration: underline;
           }
         }
+      }
+    }
+
+    footer {
+      position: sticky;
+      bottom: 0;
+      margin-top: 5rem;
+      display: flex;
+      justify-content: space-around;
+      pointer-events: none;
+
+      a {
+        pointer-events: all;
       }
     }
   `

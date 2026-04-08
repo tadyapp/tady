@@ -22,7 +22,7 @@
     "analyze": "npx vite-bundle-visualizer"
   },
   "dependencies": {
-    "@awesome.me/webawesome": "^3.2.1",
+    "@awesome.me/webawesome": "^3.5.0",
     "@lit-labs/router": "^0.1.4",
     "@lit-labs/signals": "^0.2.0",
     "@nostr-dev-kit/blossom": "^8.0.0",
