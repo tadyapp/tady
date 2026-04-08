@@ -56,8 +56,8 @@ export class TadyLayout extends SignalWatcher(LitElement) {
     return html`
       <header class="header">
         <nav>
-          <a href="/news" class=${classMap({ active: active === 'news' })}
-            >news</a
+          <a href="/notes" class=${classMap({ active: active === 'notes' })}
+            >notes</a
           >
           <a href="/events" class=${classMap({ active: active === 'events' })}
             >events</a

@@ -11,7 +11,7 @@ import { blossom } from '../../data/ndk.js'
 import { substrings } from '../../utils/geo.js'
 import '../geo-select-geohash.js'
 
-export interface NewsFormValues {
+export interface NoteFormValues {
   content: string
   geohash: string
   media: File[]
@@ -22,9 +22,9 @@ export type NDKEventSubmitEvent = CustomEvent<{
   media: File[]
 }>
 
-@customElement('tady-create-news-form')
-export class TadyCreateNewsForm extends SignalWatcher(LitElement) {
-  @state() values: Partial<NewsFormValues> = {}
+@customElement('tady-create-note-form')
+export class TadyCreateNoteForm extends SignalWatcher(LitElement) {
+  @state() values: Partial<NoteFormValues> = {}
 
   private _submit(e: SubmitEvent) {
     e.preventDefault()
@@ -35,7 +35,7 @@ export class TadyCreateNewsForm extends SignalWatcher(LitElement) {
       media: formData
         .getAll('media')
         .filter(f => f instanceof File && f.name && f.size),
-    } as unknown as NewsFormValues
+    } as unknown as NoteFormValues
 
     const event = new NDKEvent(undefined, {
       kind: 1,
@@ -95,8 +95,8 @@ export class TadyCreateNewsForm extends SignalWatcher(LitElement) {
   render() {
     return html`
       <form
-        id="create-news-form"
-        data-testid="create-news-form"
+        id="create-note-form"
+        data-testid="create-note-form"
         @submit=${this._submit}
         @reset=${this._reset}
         @input=${this._change}
@@ -106,9 +106,9 @@ export class TadyCreateNewsForm extends SignalWatcher(LitElement) {
           <input type="file" multiple accept="image/*,video/*" name="media" />
         </div>
         <div>
-          <label for="news-form-content">Content</label>
+          <label for="note-form-content">Content</label>
           <textarea
-            id="news-form-content"
+            id="note-form-content"
             name="content"
             .value=${this.values.content ?? ''}
           ></textarea>

@@ -1,15 +1,15 @@
 import { SignalWatcher, watch } from '@lit-labs/signals'
 import { css, html, LitElement } from 'lit'
 import { customElement, state } from 'lit/decorators.js'
-import './components/create/tady-create-news.js'
+import './components/create/tady-create-note.js'
 import {
   activeLocation,
   activeLocationType,
   locationAuto,
   locationSelected,
   radius,
-} from './data/location'
-import { typeKinds } from './data/things'
+} from './data/location.js'
+import { typeKinds } from './data/things.js'
 import './tady-filters.js'
 import type { FilterChangeEvent } from './tady-filters.js'
 import './tady-list.js'
@@ -20,8 +20,8 @@ import {
   type EventFilterConfig,
 } from './utils/fiilter.js'
 
-@customElement('tady-news')
-export class TadyNews extends SignalWatcher(LitElement) {
+@customElement('tady-notes')
+export class TadyNotes extends SignalWatcher(LitElement) {
   @state() private _filter: EventFilter = events => events
   render() {
     return html`<tady-filters
@@ -44,14 +44,14 @@ export class TadyNews extends SignalWatcher(LitElement) {
         .locationAuto=${watch(locationAuto)}
         .activeLocationType=${watch(activeLocationType)}
         radius=${watch(radius)}
-        .kinds=${typeKinds['news']}
+        .kinds=${typeKinds['notes']}
         .filter=${this._filter}
       ></tady-list>
-      <tady-create-news></tady-create-news>`
+      <tady-create-note></tady-create-note>`
   }
 
   static styles = css`
-    tady-create-news::part(trigger) {
+    tady-create-note::part(trigger) {
       display: block;
       position: fixed;
       right: 2rem;
@@ -62,6 +62,6 @@ export class TadyNews extends SignalWatcher(LitElement) {
 
 declare global {
   interface HTMLElementTagNameMap {
-    'tady-news': TadyNews
+    'tady-notes': TadyNotes
   }
 }

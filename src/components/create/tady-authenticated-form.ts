@@ -1,7 +1,7 @@
 import { type NDKEvent, type NDKSigner } from '@nostr-dev-kit/ndk'
 import { html, LitElement } from 'lit'
 import { customElement, state } from 'lit/decorators.js'
-import type { NDKEventSubmitEvent } from './tady-create-news-form'
+import type { NDKEventSubmitEvent } from './tady-create-note-form'
 import './tady-identity-select'
 import type { IdentitySelectedEvent } from './tady-identity-select'
 

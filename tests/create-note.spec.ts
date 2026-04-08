@@ -8,7 +8,7 @@ import {
   updateAppRelays,
 } from './helpers'
 
-test.describe('Create a note (news)', () => {
+test.describe('Create a short text note', () => {
   let ndk: NDK
   let relay: string
 
@@ -70,14 +70,14 @@ test.describe('Create a note (news)', () => {
   })
 
   test('open create form', async ({ page }) => {
-    await page.getByRole('link', { name: 'news' }).click()
-    await page.getByRole('button', { name: 'create news' }).click()
-    await expect(page.getByTestId('create-news-form')).toBeVisible()
+    await page.getByRole('link', { name: 'note' }).click()
+    await page.getByRole('button', { name: 'create note' }).click()
+    await expect(page.getByTestId('create-note-form')).toBeVisible()
   })
   test('write text content', async ({ page }) => {
-    await page.getByRole('link', { name: 'news' }).click()
-    await page.getByRole('button', { name: 'create news' }).click()
-    await expect(page.getByTestId('create-news-form')).toBeVisible()
+    await page.getByRole('link', { name: 'note' }).click()
+    await page.getByRole('button', { name: 'create note' }).click()
+    await expect(page.getByTestId('create-note-form')).toBeVisible()
     await page.getByRole('textbox', { name: 'content' }).fill('some text here')
   })
   test.fixme('correctly manage tags', async () => {})
@@ -86,9 +86,9 @@ test.describe('Create a note (news)', () => {
   test.use({ permissions: ['geolocation'] })
   test('show initial geolocated location', async ({ page, context }) => {
     await context.setGeolocation({ latitude: 49, longitude: 14 })
-    await page.getByRole('link', { name: 'news' }).click()
-    await page.getByRole('button', { name: 'create news' }).click()
-    await expect(page.getByTestId('create-news-form')).toBeVisible()
+    await page.getByRole('link', { name: 'note' }).click()
+    await page.getByRole('button', { name: 'create note' }).click()
+    await expect(page.getByTestId('create-note-form')).toBeVisible()
     await expect(page.locator('geo-select-geohash')).toHaveJSProperty(
       'value',
       'u29yy8',
@@ -100,9 +100,9 @@ test.describe('Create a note (news)', () => {
   test.use({ permissions: ['geolocation'] })
   test('select precision', async ({ page, context }) => {
     await context.setGeolocation({ latitude: 49, longitude: 14 })
-    await page.getByRole('link', { name: 'news' }).click()
-    await page.getByRole('button', { name: 'create news' }).click()
-    await expect(page.getByTestId('create-news-form')).toBeVisible()
+    await page.getByRole('link', { name: 'note' }).click()
+    await page.getByRole('button', { name: 'create note' }).click()
+    await expect(page.getByTestId('create-note-form')).toBeVisible()
     await expect(page.locator('geo-select-geohash')).toHaveJSProperty(
       'value',
       'u29yy8',
@@ -121,9 +121,9 @@ test.describe('Create a note (news)', () => {
     context,
   }) => {
     await context.setGeolocation({ latitude: 49, longitude: 14 })
-    await page.getByRole('link', { name: 'news' }).click()
+    await page.getByRole('link', { name: 'note' }).click()
     await expect(page.getByTestId('tady-list-item')).toHaveCount(2)
-    await page.getByRole('button', { name: 'create news' }).click()
+    await page.getByRole('button', { name: 'create note' }).click()
     await page.getByRole('textbox', { name: 'content' }).fill('some text here')
     await page.locator('#geohash-precision #thumb').click()
     await page.keyboard.press('ArrowRight')
@@ -137,15 +137,15 @@ test.describe('Create a note (news)', () => {
 
     await page.getByRole('button', { name: 'sign in' }).click()
 
-    await expect(page.getByTestId('create-news-form')).not.toBeVisible()
+    await expect(page.getByTestId('create-note-form')).not.toBeVisible()
     await expect(page.getByTestId('tady-list-item')).toHaveCount(3)
   })
   test.use({ permissions: ['geolocation'] })
   test('successful submit with anonymous user', async ({ page, context }) => {
     await context.setGeolocation({ latitude: 49, longitude: 14 })
-    await page.getByRole('link', { name: 'news' }).click()
+    await page.getByRole('link', { name: 'note' }).click()
     await expect(page.getByTestId('tady-list-item')).toHaveCount(2)
-    await page.getByRole('button', { name: 'create news' }).click()
+    await page.getByRole('button', { name: 'create note' }).click()
     await page.getByRole('textbox', { name: 'content' }).fill('some text here')
     await page.locator('#geohash-precision #thumb').click()
     await page.keyboard.press('ArrowRight')
@@ -159,7 +159,7 @@ test.describe('Create a note (news)', () => {
 
     await page.getByRole('button', { name: 'anonymous' }).click()
 
-    await expect(page.getByTestId('create-news-form')).not.toBeVisible()
+    await expect(page.getByTestId('create-note-form')).not.toBeVisible()
     await expect(page.getByTestId('tady-list-item')).toHaveCount(3)
   })
   test.fixme('show error when content is empty', async () => {})

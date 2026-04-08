@@ -10,7 +10,7 @@ import {
 } from './data/location.js'
 import { activeType, typeKinds } from './data/things.js'
 import './tady-list.js'
-import './tady-news.js'
+import './tady-notes.js'
 import { navigate } from './utils/navigate.js'
 
 export let router: Router
@@ -22,16 +22,16 @@ export class TadyRouter extends SignalWatcher(LitElement) {
       name: 'home',
       path: '/',
       enter: () => {
-        navigate(this._router.link('news'))
+        navigate(this._router.link('notes'))
         return false
       },
     },
     {
-      name: 'news',
-      path: '/news',
+      name: 'notes',
+      path: '/notes',
       render: () => {
-        activeType.set('news')
-        return html`<tady-news></tady-news>`
+        activeType.set('notes')
+        return html`<tady-notes></tady-notes>`
       },
     },
     {

@@ -47,7 +47,7 @@ export class TadyList extends LitElement {
     event: NDKEvent,
     origins: { location: LatLng; type?: LocationType }[],
   ) {
-    if (typeKinds.news.includes(event.kind)) {
+    if (typeKinds.notes.includes(event.kind)) {
       return html`<nostr-short-text-note
         .nostrEvent=${event}
         .origins=${origins}

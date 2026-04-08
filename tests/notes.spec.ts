@@ -8,7 +8,7 @@ import {
   selectLocation,
 } from './helpers'
 
-test.describe('News at a location', () => {
+test.describe('Notes at a location', () => {
   let ndk: NDK
 
   test.beforeEach(async ({ page }) => {
@@ -47,9 +47,9 @@ test.describe('News at a location', () => {
     })
   })
 
-  test('show news at a selected location', async ({ page }) => {
-    await page.getByRole('link', { name: 'news' }).click()
-    await expect(page).toHaveURL('/news')
+  test('show notes near a selected location', async ({ page }) => {
+    await page.getByRole('link', { name: 'notes' }).click()
+    await expect(page).toHaveURL('/notes')
     await selectLocation(page, 50.087496, 14.421181)
     await expect(page.getByTestId('tady-list-item')).toHaveCount(3)
   })
