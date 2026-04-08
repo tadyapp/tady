@@ -148,7 +148,7 @@ export class LeafletSelectLocation extends LitElement {
     ) {
       const coord =
         this.activeLocationType === 'manual' ? this.location : this.locationAuto
-      if (this._map && coord && this.precision && this.radius) {
+      if (this._map && coord && this.precision && this.radius >= 0) {
         this._polygons.forEach(p => p.remove())
         this._polygons = []
         const geohashes = getCircleGeohashesInRadius({

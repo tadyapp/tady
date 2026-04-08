@@ -14,6 +14,9 @@ export function formatLatLng(
 }
 
 export const formatDistance = (distance: number): string => {
+  if (distance === 0) {
+    return '0'
+  }
   if (distance < 0.05) {
     return Math.round(distance * 1000) + 'mm'
   }

@@ -5,6 +5,7 @@ import { LatLng } from 'leaflet'
 import { css, html, LitElement } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 import { repeat } from 'lit/directives/repeat.js'
+import { dialogOpen as locationDialogOpen } from './components/geo-select-location.js'
 import './components/nostr-calendar-event.js'
 import './components/nostr-classified-listing.js'
 import './components/nostr-short-text-note.js'
@@ -73,6 +74,26 @@ export class TadyList extends LitElement {
       origins.push({ location: this.locationSelected, type: 'manual' })
     if (this.locationAuto)
       origins.push({ location: this.locationAuto, type: 'auto' })
+
+    const noLocation = !this.locationSelected && !this.locationAuto
+
+    const noEvents = this._events.events.length === 0
+
+    if (noLocation || noEvents) {
+      const message = noLocation
+        ? "Set a location to see what's nearby."
+        : 'Nothing here yet. Expand the radius or try a different location.'
+      return html`<div aria-live="polite" aria-atomic="true">
+        <p id="location-message">${message}</p>
+        <wa-button
+          aria-describedby="location-message"
+          appearance="outlined"
+          @click=${() => locationDialogOpen.set(true)}
+        >
+          Set location
+        </wa-button>
+      </div>`
+    }
 
     return html`<ul class="list">
       ${repeat(

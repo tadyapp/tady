@@ -177,6 +177,7 @@ export class NostrClassifiedListing extends LitElement {
     .categories {
       display: flex;
       gap: 0.5rem;
+      flex-wrap: wrap;
     }
 
     .price {

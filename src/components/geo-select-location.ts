@@ -1,16 +1,14 @@
 import '@awesome.me/webawesome/dist/components/dialog/dialog.js'
-import type WaDialog from '@awesome.me/webawesome/dist/components/dialog/dialog.js'
 import '@awesome.me/webawesome/dist/components/dialog/dialog.styles.js'
 import '@awesome.me/webawesome/dist/components/icon/icon.js'
 import '@awesome.me/webawesome/dist/components/icon/icon.styles.js'
 import '@awesome.me/webawesome/dist/components/slider/slider.js'
 import type WaSlider from '@awesome.me/webawesome/dist/components/slider/slider.js'
 import '@awesome.me/webawesome/dist/components/slider/slider.styles.js'
-import { SignalWatcher, watch } from '@lit-labs/signals'
+import { signal, SignalWatcher, watch } from '@lit-labs/signals'
 import { LatLng, LatLngBounds } from 'leaflet'
 import { css, html, LitElement, type PropertyValues } from 'lit'
-import { customElement, property, query, state } from 'lit/decorators.js'
-import { ifDefined } from 'lit/directives/if-defined.js'
+import { customElement, property, state } from 'lit/decorators.js'
 import {
   activeLocation,
   activeLocationType,
@@ -22,6 +20,8 @@ import {
 } from '../data/location'
 import { formatDistance, formatLatLng } from '../utils/geo.js'
 import './leaflet-select-location.js'
+
+export const dialogOpen = signal(false)
 
 @customElement('geo-select-location')
 export class GeoSelectLocation extends SignalWatcher(LitElement) {
@@ -96,13 +96,12 @@ export class GeoSelectLocation extends SignalWatcher(LitElement) {
   }
 
   private _handleSelectLocation = (latlng: LatLng) => {
-    this._latitude = latlng.lat
-    this._longitude = latlng.lng
+    this._latitude = Math.round(latlng.lat * 10 ** 6) / 10 ** 6
+    this._longitude = Math.round(latlng.lng * 10 ** 6) / 10 ** 6
   }
 
-  @query('#location-select-dialog') dialog?: WaDialog
   private openDialog = () => {
-    if (this.dialog) this.dialog.open = true
+    dialogOpen.set(true)
   }
 
   private handleChangePreference(e: Event) {
@@ -141,7 +140,16 @@ export class GeoSelectLocation extends SignalWatcher(LitElement) {
         ${formatLatLng(activeLocation.get(), { decimals: 4 })} &plusmn;
         ${formatDistance(radius.get())}
       </wa-button>
-      <wa-dialog light-dismiss id="location-select-dialog">
+      <wa-dialog
+        light-dismiss
+        id="location-select-dialog"
+        label="Set location"
+        .open=${dialogOpen.get()}
+        @wa-after-hide=${(e: Event) => {
+          // the conditional is here because of event collision with wa-slider
+          if (e.target === e.currentTarget) dialogOpen.set(false)
+        }}
+      >
         <div>
           <label>
             <input
@@ -183,7 +191,7 @@ export class GeoSelectLocation extends SignalWatcher(LitElement) {
             id="geo-latitude"
             type="number"
             @input=${this.#onLatitudeChange}
-            value=${ifDefined(this._latitude)}
+            .value=${this._latitude?.toString() ?? ''}
           />
           <!-- <label for="geo-longitude">longitude</label> -->
           <input
@@ -192,7 +200,7 @@ export class GeoSelectLocation extends SignalWatcher(LitElement) {
             id="geo-longitude"
             type="number"
             @input=${this.#onLongitudeChange}
-            value=${ifDefined(this._longitude)}
+            .value=${this._longitude?.toString() ?? ''}
           />
         </div>
         <div>
@@ -200,15 +208,15 @@ export class GeoSelectLocation extends SignalWatcher(LitElement) {
           <input
             type="number"
             size="4"
-            min=${1}
-            max=${500000}
-            .value=${String(radius.get())}
+            min=${0}
+            max=${500}
+            .value=${String(radius.get() / 1000)}
             @change=${(e: Event) => {
               const target = e.target as HTMLInputElement
-              radius.set(Number(target.value))
+              radius.set(+(Number(target.value) * 1000).toPrecision(3))
             }}
           />
-          m
+          km
           <wa-slider
             with-tooltip
             step=${0.05}
@@ -218,7 +226,7 @@ export class GeoSelectLocation extends SignalWatcher(LitElement) {
             .value=${Math.log10(radius.get())}
             @input=${(e: Event) => {
               const target = e.target as WaSlider
-              radius.set(Math.round(10 ** target.value))
+              radius.set(+Math.round(10 ** target.value).toPrecision(3))
             }}
           ></wa-slider>
         </div>
@@ -239,6 +247,10 @@ export class GeoSelectLocation extends SignalWatcher(LitElement) {
     /* ::part(dialog) { */
     /* width: 100%; */
     /* } */
+
+    wa-slider {
+      margin: 1rem 0;
+    }
   `
 }
 
