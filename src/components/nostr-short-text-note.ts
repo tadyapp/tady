@@ -2,6 +2,7 @@ import type { NDKEvent, NDKUserProfile } from '@nostr-dev-kit/ndk'
 import { LatLng } from 'leaflet'
 import { css, html, LitElement, type PropertyValues } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
+import { ifDefined } from 'lit/directives/if-defined.js'
 import type { LocationType } from '../data/location.js'
 import {
   formatDistance,
@@ -60,6 +61,7 @@ export class NostrShortTextNote extends LitElement {
                     html`<geo-direction
                       .origin=${o.location}
                       .dest=${dest}
+                      destGeohash=${ifDefined(geohash)}
                     ></geo-direction> `,
                 )}
                 ${typeof precision === 'number'

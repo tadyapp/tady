@@ -60,78 +60,49 @@ export class NostrClassifiedListing extends LitElement {
     const image = this._getTag('image')?.[1]
 
     return html`<article class="listing">
-        <figure class="image-panel">
-          <img src=${ifDefined(image)} width="128" height="128" />
-        </figure>
-        <div class="info-panel">
-          <div class="info-tools-wip">
-            <div>
-              <span>
-                <nostr-avatar .profile=${this._author}></nostr-avatar>
-                <span class="name">${this._author?.displayName}</span>
-                <span>${this._author?.nip05}</span>
-              </span>
-              <span>
-                ${this.origins.map(
-                  o =>
-                    html`<geo-direction
-                      .origin=${o.location}
-                      .dest=${dest}
-                    ></geo-direction> `,
-                )}
-                ${typeof precision === 'number'
-                  ? html`<span>&plusmn; ${formatDistance(precision)}</span>`
-                  : null}
-              </span>
-            </div>
-            <div class="tools">
-              <nostr-event-preview-raw
-                .event=${this.nostrEvent}
-              ></nostr-event-preview-raw>
-            </div>
+      <figure class="image-panel">
+        <img src=${ifDefined(image)} width="128" height="128" />
+      </figure>
+      <div class="info-panel">
+        <div class="info-tools-wip">
+          <div>
+            <span>
+              <nostr-avatar .profile=${this._author}></nostr-avatar>
+              <span class="name">${this._author?.displayName}</span>
+              <span>${this._author?.nip05}</span>
+            </span>
+            <span>
+              ${this.origins.map(
+                o =>
+                  html`<geo-direction
+                    .origin=${o.location}
+                    .dest=${dest}
+                    destGeohash=${ifDefined(geohash)}
+                  ></geo-direction> `,
+              )}
+              ${typeof precision === 'number'
+                ? html`<span>&plusmn; ${formatDistance(precision)}</span>`
+                : null}
+            </span>
           </div>
-          <header class="info-header">
-            <h3>${title}</h3>
-            <div class="price">${price}</div>
-          </header>
-
-          <div class="categories">
-            ${categories.map(c => html`<span>${c}</span>`)}
+          <div class="tools">
+            <nostr-event-preview-raw
+              .event=${this.nostrEvent}
+            ></nostr-event-preview-raw>
           </div>
+        </div>
+        <header class="info-header">
+          <h3>${title}</h3>
+          <div class="price">${price}</div>
+        </header>
 
-          <p>${summary}</p>
+        <div class="categories">
+          ${categories.map(c => html`<span>${c}</span>`)}
         </div>
-      </article>
-      <div class="wip">
-        <div>
-          ${this.origins.map(
-            o =>
-              html`<geo-direction
-                .origin=${o.location}
-                .dest=${dest}
-              ></geo-direction> `,
-          )}
-          ${typeof precision === 'number'
-            ? html`<span>&plusmn; ${formatDistance(precision)}</span>`
-            : null}
-        </div>
-        <div class="tools">
-          <nostr-event-preview-raw
-            .event=${this.nostrEvent}
-          ></nostr-event-preview-raw>
-        </div>
-        <div>${title}</div>
-        <nostr-avatar .profile=${this._author}></nostr-avatar>
-        <span class="name">${this._author?.displayName}</span>
-        <span>${this._author?.nip05}</span>
-        ${this.nostrEvent.created_at
-          ? html`<span>
-              ${new Intl.DateTimeFormat('en', {
-                dateStyle: 'medium',
-              }).format(this.nostrEvent.created_at * 1000)}
-            </span>`
-          : null}
-      </div>`
+
+        <p>${summary}</p>
+      </div>
+    </article>`
   }
 
   static styles = css`
@@ -142,10 +113,6 @@ export class NostrClassifiedListing extends LitElement {
 
     figure {
       all: unset;
-    }
-
-    .wip {
-      display: none;
     }
 
     .listing {

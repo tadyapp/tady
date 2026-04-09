@@ -75,6 +75,7 @@ export class NostrCalendarEvent extends LitElement {
                   html`<geo-direction
                     .origin=${o.location}
                     .dest=${dest}
+                    destGeohash=${ifDefined(geohash)}
                   ></geo-direction> `,
               )}
               ${typeof precision === 'number'

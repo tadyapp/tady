@@ -214,3 +214,13 @@ export function eventDistance(event: NDKEvent, origin: LatLng) {
 
 export const substrings = (s: string) =>
   Array.from({ length: s.length }, (_, i) => s.slice(0, s.length - i))
+
+export function isWithin(location: LatLng, geohash: string) {
+  const locationGeohash = ngeohash.encode(
+    location.lat,
+    location.lng,
+    geohash.length,
+  )
+
+  return locationGeohash === geohash
+}
