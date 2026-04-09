@@ -47,6 +47,18 @@ export class SnortFragment extends LitElement {
           alt?: string
         }
       | undefined
+
+    const isVideo = this.fragment.mimeType?.startsWith('video/')
+
+    if (isVideo) {
+      return html`<video controls class="media">
+        <source
+          src=${ifDefined(data?.url ?? this.fragment.content)}
+          type=${ifDefined(this.fragment.mimeType)}
+        />
+      </video>`
+    }
+
     return html`<img
       class="media"
       src=${data?.thumb ?? data?.url ?? this.fragment.content}
@@ -102,8 +114,8 @@ export class SnortFragment extends LitElement {
     .media {
       display: block;
       /* margin: 0.5rem; */
-      max-width: min(100%, 256px);
-      max-height: 256px;
+      max-width: min(100%, 16rem);
+      max-height: 24rem;
     }
     .hashtag {
       color: lightblue;
