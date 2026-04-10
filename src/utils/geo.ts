@@ -1,6 +1,6 @@
 import type { NDKEvent } from '@nostr-dev-kit/ndk'
 import { getDistance } from 'geolib'
-import { LatLng, type LatLngExpression } from 'leaflet'
+import { LatLng, latLngBounds, type LatLngExpression } from 'leaflet'
 import ngeohash from 'ngeohash'
 
 export function formatLatLng(
@@ -223,4 +223,9 @@ export function isWithin(location: LatLng, geohash: string) {
   )
 
   return locationGeohash === geohash
+}
+
+export function getGeohashBounds(geohash: string) {
+  const [lat0, lng0, lat1, lng1] = ngeohash.decode_bbox(geohash)
+  return latLngBounds([lat0, lng0], [lat1, lng1])
 }

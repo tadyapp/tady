@@ -5,7 +5,6 @@ import 'leaflet'
 import {
   canvas,
   latLng,
-  latLngBounds,
   map,
   marker,
   Marker,
@@ -23,6 +22,7 @@ import {
   formatDistance,
   geohash2location,
   geohash2polygon,
+  getGeohashBounds,
   normalizeLng,
 } from '../utils/geo.js'
 import './leaflet-icon-setup.js'
@@ -113,8 +113,7 @@ export class GeoSelectGeohash extends LitElement {
   private zoomToGeohash({ animate = true }: { animate?: boolean } = {}) {
     if (!this._map || !this.value) return
 
-    const [lat0, lng0, lat1, lng1] = ngeohash.decode_bbox(this.value)
-    const geohashBounds = latLngBounds([lat0, lng0], [lat1, lng1])
+    const geohashBounds = getGeohashBounds(this.value)
     const loc = geohash2location(this.value)!
 
     const zoom = this._map.getBoundsZoom(geohashBounds) - 1

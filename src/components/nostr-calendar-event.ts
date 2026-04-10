@@ -9,6 +9,7 @@ import {
   geohash2location,
   getEventGeohash,
 } from '../utils/geo.js'
+import './geo-direction-dialog.js'
 import './geo-direction.js'
 import './nostr-avatar.js'
 import './nostr-content.js'
@@ -72,11 +73,13 @@ export class NostrCalendarEvent extends LitElement {
             <span>
               ${this.origins.map(
                 o =>
-                  html`<geo-direction
-                    .origin=${o.location}
-                    .dest=${dest}
-                    destGeohash=${ifDefined(geohash)}
-                  ></geo-direction> `,
+                  html`<geo-direction-dialog
+                    ><geo-direction
+                      .origin=${o.location}
+                      .dest=${dest}
+                      destGeohash=${ifDefined(geohash)}
+                    ></geo-direction
+                  ></geo-direction-dialog> `,
               )}
               ${typeof precision === 'number'
                 ? html`<span>&plusmn; ${formatDistance(precision)}</span>`
