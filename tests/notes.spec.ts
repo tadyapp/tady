@@ -1,12 +1,7 @@
 import NDK from '@nostr-dev-kit/ndk'
 import { expect, test } from '@playwright/test'
-import {
-  createEvent,
-  createUser,
-  destroyRelays,
-  prepareRelays,
-  selectLocation,
-} from './helpers'
+import { destroyRelays, prepareRelays, selectLocation } from './helpers'
+import { createTestEvents, testNotes } from './test-data'
 
 test.describe('Notes at a location', () => {
   let ndk: NDK
@@ -20,31 +15,7 @@ test.describe('Notes at a location', () => {
   })
 
   test.beforeEach(async () => {
-    const alice = await createUser({
-      ndk,
-      profile: { name: 'Alice', about: 'Test user' },
-    })
-    const bob = await createUser()
-    const cecilia = await createUser()
-
-    await createEvent({
-      ndk,
-      user: alice,
-      event: { content: 'Test content', kind: 1 },
-      location: 'u2fkb05',
-    })
-    await createEvent({
-      ndk,
-      user: bob,
-      event: { content: 'Other test event', kind: 1 },
-      location: 'u2fm6v',
-    })
-    await createEvent({
-      ndk,
-      user: cecilia,
-      event: { content: 'Yet another test event', kind: 1 },
-      location: 'u2fhzvvh',
-    })
+    await createTestEvents(testNotes, { ndk })
   })
 
   test('show notes near a selected location', async ({ page }) => {
@@ -52,5 +23,29 @@ test.describe('Notes at a location', () => {
     await expect(page).toHaveURL('/notes')
     await selectLocation(page, 50.087496, 14.421181)
     await expect(page.getByTestId('tady-list-item')).toHaveCount(3)
+  })
+
+  test('show direction from app location to the note', async ({ page }) => {
+    await page.getByRole('link', { name: 'notes' }).click()
+    await expect(page).toHaveURL('/notes')
+    await selectLocation(page, 50.087496, 14.421181)
+
+    await page.getByRole('button', { name: 'nearest' }).click()
+
+    const directionSelector = page
+      .getByTestId('tady-list-item')
+      .nth(1)
+      .getByTestId('geo-direction')
+
+    await expect(directionSelector).toBeVisible()
+    await expect(directionSelector).toContainText('3.7km')
+
+    await directionSelector.click()
+
+    const dialogSelector = page.getByRole('dialog')
+    await expect(dialogSelector).toBeVisible()
+    await expect(
+      page.locator('.destination-geohash.destination-geohash-u2fkb05'),
+    ).toBeVisible()
   })
 })

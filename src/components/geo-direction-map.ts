@@ -72,6 +72,7 @@ export class GeoDirectionMap extends GeoBaseMap {
       this.polygon = polygon(geohash2polygon(this.destination), {
         stroke: false,
         fillOpacity: 0.4,
+        className: `destination-geohash destination-geohash-${this.destination}`,
       }).addTo(this._map)
     }
 

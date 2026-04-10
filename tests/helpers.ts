@@ -21,7 +21,7 @@ export const updateAppConfig = async (
   await page.evaluate(`globalThis.updateAppConfig(${JSON.stringify(config)})`)
 }
 
-interface User {
+export interface User {
   signer: NDKPrivateKeySigner
   user?: NDKUser
 }
