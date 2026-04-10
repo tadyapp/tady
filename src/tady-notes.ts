@@ -18,7 +18,7 @@ import {
   latestFilter,
   type EventFilter,
   type EventFilterConfig,
-} from './utils/fiilter.js'
+} from './utils/filter.js'
 
 @customElement('tady-notes')
 export class TadyNotes extends SignalWatcher(LitElement) {
@@ -44,7 +44,7 @@ export class TadyNotes extends SignalWatcher(LitElement) {
         .locationAuto=${watch(locationAuto)}
         .activeLocationType=${watch(activeLocationType)}
         radius=${watch(radius)}
-        .kinds=${typeKinds['notes']}
+        .kinds=${typeKinds.notes}
         .filter=${this._filter}
       ></tady-list>
       <tady-create-note></tady-create-note>`

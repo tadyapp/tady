@@ -68,7 +68,7 @@ export const testCalendarEvents = [
 
         // location
         ['location', '<location>'],
-        ['g', '<geohash>'],
+        // ['g', '<geohash>'],
 
         // participants
         [
@@ -110,7 +110,7 @@ export const testCalendarEvents = [
 
         // location
         ['location', '<location>'],
-        ['g', '<geohash>'],
+        // ['g', '<geohash>'],
 
         // participants
         [

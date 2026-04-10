@@ -12,7 +12,7 @@ import './components/nostr-short-text-note.js'
 import { NostrGeoSubscription } from './controllers/geohash-subscription.js'
 import type { LocationType } from './data/location.js'
 import { typeKinds } from './data/things.js'
-import type { EventFilter } from './utils/fiilter.js'
+import type { EventFilter } from './utils/filter.js'
 import { getCircleGeohashesInRadius } from './utils/geo.js'
 
 @customElement('tady-list')

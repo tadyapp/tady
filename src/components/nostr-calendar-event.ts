@@ -74,6 +74,8 @@ export class NostrCalendarEvent extends LitElement {
               ${this.origins.map(
                 o =>
                   html`<geo-direction-dialog
+                    .origin=${o.location}
+                    destination=${geohash ?? ''}
                     ><geo-direction
                       .origin=${o.location}
                       .dest=${dest}

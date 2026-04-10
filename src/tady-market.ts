@@ -3,16 +3,21 @@ import { css, html, LitElement } from 'lit'
 import { customElement, state } from 'lit/decorators.js'
 import './components/create/tady-create-listing.js'
 import {
+  activeLocation,
   activeLocationType,
   locationAuto,
   locationSelected,
   radius,
-} from './data/location'
-import { typeKinds } from './data/things'
+} from './data/location.js'
+import { typeKinds } from './data/things.js'
 import './tady-filters.js'
 import type { FilterChangeEvent } from './tady-filters.js'
 import './tady-list.js'
-import { type EventFilter, type EventFilterConfig } from './utils/fiilter.js'
+import {
+  getNearestFilter,
+  type EventFilter,
+  type EventFilterConfig,
+} from './utils/filter.js'
 
 @customElement('tady-market')
 export class TadyMarket extends SignalWatcher(LitElement) {
@@ -22,7 +27,9 @@ export class TadyMarket extends SignalWatcher(LitElement) {
         @filter-change=${(e: FilterChangeEvent) => {
           this._filter = e.detail.apply
         }}
-        .filters=${new Map<string, EventFilterConfig>()}
+        .filters=${new Map<string, EventFilterConfig>([
+          ['nearest', { filter: getNearestFilter(activeLocation.get()) }],
+        ])}
       ></tady-filters>
       <tady-list
         .locationSelected=${watch(locationSelected)}

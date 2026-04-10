@@ -5,7 +5,7 @@ import { customElement, property, state } from 'lit/decorators.js'
 import { repeat } from 'lit/directives/repeat.js'
 import './components/create/tady-create-note.js'
 import './components/nostr-short-text-note.js'
-import type { EventFilter, EventFilterConfig } from './utils/fiilter.js'
+import type { EventFilter, EventFilterConfig } from './utils/filter.js'
 
 export type FilterChangeEvent = CustomEvent<{ apply: EventFilter }>
 

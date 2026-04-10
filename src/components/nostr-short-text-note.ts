@@ -62,12 +62,13 @@ export class NostrShortTextNote extends LitElement {
                     html`<geo-direction-dialog
                       .origin=${o.location}
                       .destination=${geohash!}
-                      ><geo-direction
+                    >
+                      <geo-direction
                         .origin=${o.location}
                         .dest=${dest}
                         destGeohash=${ifDefined(geohash)}
-                      ></geo-direction
-                    ></geo-direction-dialog> `,
+                      ></geo-direction>
+                    </geo-direction-dialog> `,
                 )}
                 ${typeof precision === 'number'
                   ? html`<span>&plusmn; ${formatDistance(precision)}</span>`

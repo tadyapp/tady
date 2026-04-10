@@ -5,6 +5,6 @@ import { customElement } from 'lit/decorators.js'
 @customElement('tady-create-listing')
 export class TadyCreateListing extends SignalWatcher(LitElement) {
   render() {
-    return html`Not implemented`
+    return html``
   }
 }
