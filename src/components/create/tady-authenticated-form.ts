@@ -1,7 +1,7 @@
 import { type NDKEvent, type NDKSigner } from '@nostr-dev-kit/ndk'
 import { html, LitElement } from 'lit'
 import { customElement, state } from 'lit/decorators.js'
-import type { NDKEventSubmitEvent } from './tady-create-note-form'
+import type { NDKEventSubmitEvent } from './tady-create-form.js'
 import './tady-identity-select'
 import type { IdentitySelectedEvent } from './tady-identity-select'
 
@@ -11,7 +11,7 @@ export type AuthenticatedSubmitEvent = CustomEvent<{
   signer: NDKSigner
 }>
 
-// Intercepts NDKEvent from form, asks for identity, re-emits the NDKEvent, signed
+// Intercepts NDKEvent from form, asks for identity, emits the NDKEvent and signer
 @customElement('tady-authenticated-form')
 export class TadyAuthenticatedForm extends LitElement {
   @state() private _identityOpen = false
@@ -19,7 +19,6 @@ export class TadyAuthenticatedForm extends LitElement {
   @state() private _media?: File[]
 
   private _handleFormSubmit(e: NDKEventSubmitEvent) {
-    console.log('handling form submit', e.detail)
     e.stopPropagation()
     this._pendingEvent = e.detail.event
     this._media = e.detail.media ?? []

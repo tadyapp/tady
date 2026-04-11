@@ -15,6 +15,7 @@ import './nostr-avatar.js'
 import './nostr-content.js'
 import './nostr-event-preview-raw.js'
 import './nostr-social.js'
+import './tady-unix-time.js'
 
 @customElement('nostr-calendar-event')
 export class NostrCalendarEvent extends LitElement {
@@ -55,9 +56,6 @@ export class NostrCalendarEvent extends LitElement {
     // const startTz = this._getTag('start_tzid')?.[1]
     // const endTz = this._getTag('end_tzid')?.[1] ?? startTz
 
-    const startDate = new Date(Number(start) * 1000).toLocaleString()
-    const endDate = new Date(Number(end) * 1000).toLocaleString()
-
     return html`<article class="calendar-event">
       <figure>
         <img src=${ifDefined(image)} width="128" height="128" />
@@ -95,7 +93,11 @@ export class NostrCalendarEvent extends LitElement {
           </div>
         </div>
 
-        <div>${startDate} - ${endDate}</div>
+        <div>
+          <tady-unix-time unixTimestamp=${start ?? ''}></tady-unix-time>
+          -
+          <tady-unix-time unixTimestamp=${end ?? start ?? ''}></tady-unix-time>
+        </div>
 
         <header class="info-header">
           <h3>${title}</h3>

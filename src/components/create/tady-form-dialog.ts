@@ -26,7 +26,6 @@ export class TadyFormDialog extends LitElement {
   }
 
   connectedCallback() {
-    console.log(this.closeOn)
     super.connectedCallback()
     this.closeOn.split(' ').forEach(event => {
       this.addEventListener(event, this._handleEvent)
@@ -41,7 +40,6 @@ export class TadyFormDialog extends LitElement {
   }
 
   render() {
-    console.log(this.closeOn)
     return html`
       <slot name="trigger" @click=${() => this.open()}></slot>
       <wa-dialog .label=${this.label}>

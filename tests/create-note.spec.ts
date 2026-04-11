@@ -1,9 +1,10 @@
-import NDK, { NDKEvent, NostrEvent } from '@nostr-dev-kit/ndk'
+import NDK from '@nostr-dev-kit/ndk'
 import { expect, test } from '@playwright/test'
 import {
   createEvent,
   createUser,
   destroyRelays,
+  setupNip07,
   setupTestRelay,
   updateAppRelays,
 } from './helpers'
@@ -21,29 +22,7 @@ test.describe('Create a short text note', () => {
 
   test.beforeEach(async ({ page }) => {
     const user = await createUser({ ndk, profile: { name: 'eve' } })
-
-    const getPublicKey = async () => user.signer.pubkey
-    const signEvent = async (event: NostrEvent) => {
-      const ndkEvent = new NDKEvent(undefined, event)
-      await ndkEvent.sign(user.signer)
-      return ndkEvent.rawEvent()
-    }
-
-    await page.exposeFunction('__nostrGetPublicKey', getPublicKey)
-    await page.exposeFunction('__nostrSignEvent', signEvent)
-
-    await page.addInitScript(() => {
-      window.nostr = {
-        // @ts-expect-error nonexistent function on window
-        getPublicKey: window.__nostrGetPublicKey,
-        // @ts-expect-error nonexistent function on window
-        signEvent: window.__nostrSignEvent,
-        // nip04: {
-        //   encrypt: async (pubkey, plaintext) => plaintext,
-        //   decrypt: async (pubkey, ciphertext) => ciphertext,
-        // },
-      }
-    })
+    await setupNip07(page, user)
   })
 
   test.beforeEach(async ({ page }) => {
@@ -70,12 +49,12 @@ test.describe('Create a short text note', () => {
   })
 
   test('open create form', async ({ page }) => {
-    await page.getByRole('link', { name: 'note' }).click()
+    await page.getByRole('link', { name: 'notes' }).click()
     await page.getByRole('button', { name: 'create note' }).click()
     await expect(page.getByTestId('create-note-form')).toBeVisible()
   })
   test('write text content', async ({ page }) => {
-    await page.getByRole('link', { name: 'note' }).click()
+    await page.getByRole('link', { name: 'notes' }).click()
     await page.getByRole('button', { name: 'create note' }).click()
     await expect(page.getByTestId('create-note-form')).toBeVisible()
     await page.getByRole('textbox', { name: 'content' }).fill('some text here')
@@ -86,7 +65,7 @@ test.describe('Create a short text note', () => {
   test.use({ permissions: ['geolocation'] })
   test('show initial geolocated location', async ({ page, context }) => {
     await context.setGeolocation({ latitude: 49, longitude: 14 })
-    await page.getByRole('link', { name: 'note' }).click()
+    await page.getByRole('link', { name: 'notes' }).click()
     await page.getByRole('button', { name: 'create note' }).click()
     await expect(page.getByTestId('create-note-form')).toBeVisible()
     await expect(page.locator('geo-select-geohash')).toHaveJSProperty(
@@ -100,7 +79,7 @@ test.describe('Create a short text note', () => {
   test.use({ permissions: ['geolocation'] })
   test('select precision', async ({ page, context }) => {
     await context.setGeolocation({ latitude: 49, longitude: 14 })
-    await page.getByRole('link', { name: 'note' }).click()
+    await page.getByRole('link', { name: 'notes' }).click()
     await page.getByRole('button', { name: 'create note' }).click()
     await expect(page.getByTestId('create-note-form')).toBeVisible()
     await expect(page.locator('geo-select-geohash')).toHaveJSProperty(
@@ -116,12 +95,13 @@ test.describe('Create a short text note', () => {
     )
   })
   test.fixme('show note preview', async () => {})
+  test.use({ permissions: ['geolocation'] })
   test('successful submit with authenticated user', async ({
     page,
     context,
   }) => {
     await context.setGeolocation({ latitude: 49, longitude: 14 })
-    await page.getByRole('link', { name: 'note' }).click()
+    await page.getByRole('link', { name: 'notes' }).click()
     await expect(page.getByTestId('tady-list-item')).toHaveCount(2)
     await page.getByRole('button', { name: 'create note' }).click()
     await page.getByRole('textbox', { name: 'content' }).fill('some text here')
@@ -143,7 +123,7 @@ test.describe('Create a short text note', () => {
   test.use({ permissions: ['geolocation'] })
   test('successful submit with anonymous user', async ({ page, context }) => {
     await context.setGeolocation({ latitude: 49, longitude: 14 })
-    await page.getByRole('link', { name: 'note' }).click()
+    await page.getByRole('link', { name: 'notes' }).click()
     await expect(page.getByTestId('tady-list-item')).toHaveCount(2)
     await page.getByRole('button', { name: 'create note' }).click()
     await page.getByRole('textbox', { name: 'content' }).fill('some text here')

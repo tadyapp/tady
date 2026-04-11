@@ -61,6 +61,7 @@ test.describe('Show direction at notes', () => {
         .getByTestId('tady-list-item')
         .nth(config.sortedIndex)
         .getByTestId('geo-direction')
+        .first()
 
       await expect(directionSelector).toBeVisible()
       await expect(directionSelector).toContainText(config.distance)

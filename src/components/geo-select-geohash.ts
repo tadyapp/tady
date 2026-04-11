@@ -177,16 +177,15 @@ export class GeoSelectGeohash extends LitElement {
     const location = this.value ? geohash2location(this.value) : undefined
     return html`<div id="mapid"></div>
       <div>
-        <label for="geohash-precision"
-          >Precision
-          ${typeof location?.precision === 'number'
-            ? formatDistance(location.precision)
-            : null}</label
-        >
         <wa-slider
           id="geohash-precision"
           min="5"
           max="10"
+          .label=${`precision ${
+            typeof location?.precision === 'number'
+              ? formatDistance(location.precision)
+              : null
+          }`}
           .value=${this.precision}
           @input=${this.changePrecision}
           with-markers

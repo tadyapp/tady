@@ -1,6 +1,7 @@
 import { SignalWatcher, watch } from '@lit-labs/signals'
-import { html, LitElement } from 'lit'
+import { css, html, LitElement } from 'lit'
 import { customElement, state } from 'lit/decorators.js'
+import './components/create/tady-create-calendar-event.js'
 import {
   activeLocation,
   activeLocationType,
@@ -38,8 +39,18 @@ export class TadyEvents extends SignalWatcher(LitElement) {
         radius=${watch(radius)}
         .kinds=${typeKinds['events']}
         .filter=${this._filter}
-      ></tady-list>`
+      ></tady-list>
+      <tady-create-calendar-event></tady-create-calendar-event>`
   }
+
+  static styles = css`
+    tady-create-calendar-event::part(trigger) {
+      display: block;
+      position: fixed;
+      right: 2rem;
+      bottom: 2rem;
+    }
+  `
 }
 
 declare global {

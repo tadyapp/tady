@@ -39,7 +39,8 @@
     "leaflet-polylinedecorator": "^1.6.0",
     "lit": "^3.3.1",
     "lodash-es": "^4.17.23",
-    "ngeohash": "^0.6.3"
+    "ngeohash": "^0.6.3",
+    "zod": "^4.3.6"
   },
   "devDependencies": {
     "@eslint/css": "^0.14.1",

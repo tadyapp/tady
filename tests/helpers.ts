@@ -2,8 +2,10 @@ import NDK, {
   NDKEvent,
   NDKPrivateKeySigner,
   NDKRawEvent,
+  NDKRelay,
   NDKUser,
   NDKUserProfile,
+  NostrEvent,
 } from '@nostr-dev-kit/ndk'
 import { expect, Locator, Page } from '@playwright/test'
 import ngeohash from 'ngeohash'
@@ -57,7 +59,7 @@ export const createEvent = async ({
   user: User
   event: Partial<NDKRawEvent>
   location?: [number, number, number] | string
-}): Promise<NDKEvent> => {
+}): Promise<{ event: NDKEvent; relays: Set<NDKRelay> }> => {
   if (location) {
     const geohash =
       typeof location === 'string' ? location : ngeohash.encode(...location)
@@ -68,9 +70,9 @@ export const createEvent = async ({
 
   const ndkEvent = new NDKEvent(ndk, event)
   await ndkEvent.sign(user.signer)
-  await ndkEvent.publish()
+  const relays = await ndkEvent.publish()
 
-  return ndkEvent
+  return { event: ndkEvent, relays }
 }
 
 const substrings = (s: string) =>
@@ -122,4 +124,33 @@ export const selectLocation = async (
     .getByRole('spinbutton', { name: 'longitude' })
     .fill(String(longitude))
   await page.getByRole('button', { name: 'Close' }).click()
+}
+
+/**
+ * Set up capability for web browsers on window.nostr, e.g. for signing events
+ * https://github.com/nostr-protocol/nips/blob/master/07.md
+ */
+export async function setupNip07(page: Page, user: User) {
+  const getPublicKey = async () => user.signer.pubkey
+  const signEvent = async (event: NostrEvent) => {
+    const ndkEvent = new NDKEvent(undefined, event)
+    await ndkEvent.sign(user.signer)
+    return ndkEvent.rawEvent()
+  }
+
+  await page.exposeFunction('__nostrGetPublicKey', getPublicKey)
+  await page.exposeFunction('__nostrSignEvent', signEvent)
+
+  await page.addInitScript(() => {
+    window.nostr = {
+      // @ts-expect-error nonexistent function on window
+      getPublicKey: window.__nostrGetPublicKey,
+      // @ts-expect-error nonexistent function on window
+      signEvent: window.__nostrSignEvent,
+      // nip04: {
+      //   encrypt: async (pubkey, plaintext) => plaintext,
+      //   decrypt: async (pubkey, ciphertext) => ciphertext,
+      // },
+    }
+  })
 }

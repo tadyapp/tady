@@ -10,17 +10,13 @@ import { locationAuto, locationSelected } from '../../data/location.js'
 import { blossom } from '../../data/ndk.js'
 import { substrings } from '../../utils/geo.js'
 import '../geo-select-geohash.js'
+import type { NDKEventSubmitEvent } from './tady-create-form.js'
 
 export interface NoteFormValues {
   content: string
   geohash: string
   media: File[]
 }
-
-export type NDKEventSubmitEvent = CustomEvent<{
-  event: NDKEvent
-  media: File[]
-}>
 
 @customElement('tady-create-note-form')
 export class TadyCreateNoteForm extends SignalWatcher(LitElement) {
@@ -53,7 +49,6 @@ export class TadyCreateNoteForm extends SignalWatcher(LitElement) {
       bubbles: true,
       composed: true,
     })
-    console.log('dispatching form-submit', submitEvent.detail)
     this.dispatchEvent(submitEvent)
   }
 
