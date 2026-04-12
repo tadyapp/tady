@@ -17,7 +17,7 @@ export const updateAppConfig = async (
   config: Partial<ConfigType>,
   { path = '/', locator }: { path?: string; locator?: Locator } = {},
 ) => {
-  locator ??= page.getByRole('button', { name: 'Sign in' })
+  locator ??= page.getByRole('link', { name: 'notes' })
   await page.goto(path)
   await expect(locator).toBeVisible()
   await page.evaluate(`globalThis.updateAppConfig(${JSON.stringify(config)})`)
@@ -96,7 +96,10 @@ export const updateAppRelays = async (page: Page, relays: string[]) => {
   await updateAppConfig(
     page,
     { relays },
-    { path: '/404', locator: page.getByRole('main') },
+    {
+      path: '/404',
+      locator: page.getByRole('link', { name: 'notes' }).first(),
+    },
   )
 }
 
