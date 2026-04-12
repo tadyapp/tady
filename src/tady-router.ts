@@ -14,46 +14,64 @@ export let router: Router
 
 @customElement('tady-router')
 export class TadyRouter extends SignalWatcher(LitElement) {
-  private _router = new Router(this, [
+  private _router = new Router(
+    this,
+    [
+      {
+        name: 'home',
+        path: '/',
+        enter: () => {
+          navigate(this._router.link('notes'))
+          return false
+        },
+      },
+      {
+        name: 'notes',
+        path: '/notes',
+        enter: () => {
+          activeType.set('notes')
+          return true
+        },
+        render: () => html`<tady-notes></tady-notes>`,
+      },
+      {
+        name: 'events',
+        path: '/events',
+        enter: () => {
+          activeType.set('events')
+          return true
+        },
+        render: () => html`<tady-events></tady-events>`,
+      },
+      {
+        name: 'market',
+        path: '/market',
+        enter: () => {
+          activeType.set('market')
+          return true
+        },
+        render: () => html`<tady-market></tady-market>`,
+      },
+      {
+        name: 'about',
+        path: '/about',
+        enter: () => {
+          activeType.set(undefined)
+          return true
+        },
+        render: () => html`<tady-about></tady-about>`,
+      },
+    ],
     {
-      name: 'home',
-      path: '/',
-      enter: () => {
-        navigate(this._router.link('notes'))
-        return false
+      fallback: {
+        enter: () => {
+          activeType.set(undefined)
+          return true
+        },
+        render: () => html`404`,
       },
     },
-    {
-      name: 'notes',
-      path: '/notes',
-      render: () => {
-        activeType.set('notes')
-        return html`<tady-notes></tady-notes>`
-      },
-    },
-    {
-      name: 'events',
-      path: '/events',
-      render: () => {
-        activeType.set('events')
-        return html`<tady-events></tady-events>`
-      },
-    },
-    {
-      name: 'market',
-      path: '/market',
-      render: () => {
-        activeType.set('market')
-        return html`<tady-market></tady-market>`
-      },
-    },
-    {
-      name: 'about',
-      path: '/about',
-      render: () => html`<tady-about></tady-about>`,
-    },
-    { path: '/*', render: () => html`404` },
-  ])
+  )
 
   connectedCallback(): void {
     super.connectedCallback()
