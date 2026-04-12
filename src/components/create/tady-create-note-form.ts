@@ -1,10 +1,12 @@
 import '@awesome.me/webawesome/dist/components/button/button.js'
 import '@awesome.me/webawesome/dist/components/dialog/dialog.js'
 import '@awesome.me/webawesome/dist/components/icon/icon.js'
+import '@awesome.me/webawesome/dist/components/input/input.js'
+import '@awesome.me/webawesome/dist/components/textarea/textarea.js'
 import '@awesome.me/webawesome/dist/styles/themes/default.css'
 import { SignalWatcher } from '@lit-labs/signals'
 import { NDKEvent } from '@nostr-dev-kit/ndk'
-import { html, LitElement } from 'lit'
+import { css, html, LitElement } from 'lit'
 import { customElement, state } from 'lit/decorators.js'
 import { locationAuto, locationSelected } from '../../data/location.js'
 import { blossom } from '../../data/ndk.js'
@@ -97,24 +99,51 @@ export class TadyCreateNoteForm extends SignalWatcher(LitElement) {
         @input=${this._change}
       >
         <div>
-          <label>Media</label>
-          <input type="file" multiple accept="image/*,video/*" name="media" />
+          <label for="media">Media</label>
+          <br />
+          <input
+            type="file"
+            multiple
+            accept="image/*,video/*"
+            name="media"
+            id="media"
+          />
         </div>
         <div>
-          <label for="note-form-content">Content</label>
-          <textarea
-            id="note-form-content"
+          <wa-textarea
             name="content"
+            label="content"
             .value=${this.values.content ?? ''}
-          ></textarea>
+            placeholder="content"
+          ></wa-textarea>
         </div>
         <geo-select-geohash
           name="geohash"
           .location=${locationAuto.get() ?? locationSelected.get()}
         ></geo-select-geohash>
-        <button type="submit">Submit</button>
-        <button type="reset">Cancel</button>
+        <div class="actions">
+          <wa-button type="reset" appearance="outlined">Cancel</wa-button>
+          <wa-button type="submit" appearance="filled">Submit</wa-button>
+        </div>
       </form>
     `
   }
+
+  static styles = css`
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .actions {
+      display: flex;
+      justify-content: stretch;
+      gap: 1rem;
+
+      wa-button {
+        flex: 1;
+      }
+    }
+  `
 }

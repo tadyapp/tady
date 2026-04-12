@@ -132,8 +132,10 @@ export class TadyCreateCalendarEventForm extends LitElement {
         name="geohash"
         .location=${locationAuto.get() ?? locationSelected.get()}
       ></geo-select-geohash>
-      <wa-button type="submit" appearance="filled">Submit</wa-button>
-      <wa-button type="reset" appearance="outlined">Cancel</wa-button>
+      <div class="actions">
+        <wa-button type="reset" appearance="outlined">Cancel</wa-button>
+        <wa-button type="submit" appearance="filled">Submit</wa-button>
+      </div>
     </form>`
   }
 
@@ -142,6 +144,16 @@ export class TadyCreateCalendarEventForm extends LitElement {
       display: flex;
       flex-direction: column;
       gap: 0.75rem;
+    }
+
+    .actions {
+      display: flex;
+      justify-content: stretch;
+      gap: 1rem;
+
+      wa-button {
+        flex: 1;
+      }
     }
   `
 }
