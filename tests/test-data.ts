@@ -193,7 +193,10 @@ export const testClassifieds = [
     profile: bob,
     event: {
       kind: 30402,
-      tags: [['title', 'Test title']],
+      tags: [
+        ['title', 'Test title'],
+        ['price', '10.5', 'EUR'],
+      ],
     },
     location: 'x37cycrj',
   },

@@ -3,45 +3,35 @@ import '@awesome.me/webawesome/dist/components/input/input.js'
 import '@awesome.me/webawesome/dist/components/textarea/textarea.js'
 import { SignalWatcher } from '@lit-labs/signals'
 import { NDKEvent } from '@nostr-dev-kit/ndk'
-import { LitElement, css, html } from 'lit'
+import { css, html, LitElement } from 'lit'
 import { customElement } from 'lit/decorators.js'
-import { z } from 'zod'
+import z from 'zod'
 import { locationAuto, locationSelected } from '../../data/location.js'
 import { substrings } from '../../utils/geo.js'
-import { dayRangeSinceEpoch } from '../../utils/nostr.js'
 import type { NDKEventSubmitEvent } from './tady-create-form.js'
 
-const localDatetimeToUnixTimestamp = z.codec(
-  z.iso.datetime({ local: true }),
-  z
-    .number()
-    .int()
-    .positive()
-    .max(9999999999, 'Looks like milliseconds, not unix timestamp'),
-  {
-    decode: localDate => Math.round(new Date(localDate).getTime() / 1000),
-    encode: unixTimestamp => new Date(unixTimestamp * 1000).toISOString(),
-  },
-)
-
-const calendarEventFormSchema = z.object({
-  start: localDatetimeToUnixTimestamp,
-  end: localDatetimeToUnixTimestamp.optional(),
-  title: z.string(),
-  summary: z.string().optional(),
-  content: z.string().optional(),
-  location: z.string().optional(),
+const classifiedFormSchema = z.object({
+  title: z.string().trim().min(1),
+  summary: z.string().trim(),
+  content: z.string().trim(),
+  location: z.string().trim().optional(),
+  media: z.array(z.instanceof(File)),
+  amount: z.preprocess(
+    (val?: string) => (val?.trim?.() === '' ? NaN : val),
+    z.coerce.number().nonnegative(),
+  ),
+  currency: z.string().regex(/^[A-Z]{3,4}$/),
+  frequency: z.string().optional(),
   geohash: z
     .string()
     .regex(/^[0-9b-hjkmnp-z]+$/, 'Invalid geohash characters')
     .min(5, 'Precision too low')
     .max(12, 'Precision too high')
     .transform(s => s.toLowerCase()), // Normalize before validating ideally,
-  media: z.array(z.instanceof(File)),
 })
 
-@customElement('tady-create-calendar-event-form')
-export class TadyCreateCalendarEventForm extends SignalWatcher(LitElement) {
+@customElement('tady-listing-form')
+export class TadyListingForm extends SignalWatcher(LitElement) {
   private _submit(e: SubmitEvent) {
     e.preventDefault()
     const form = e.target as HTMLFormElement
@@ -53,7 +43,7 @@ export class TadyCreateCalendarEventForm extends SignalWatcher(LitElement) {
         .filter(f => f instanceof File && f.name && f.size),
     }
 
-    const values = calendarEventFormSchema.parse(rawValues)
+    const values = classifiedFormSchema.parse(rawValues)
 
     const tags: string[][] = []
 
@@ -64,25 +54,25 @@ export class TadyCreateCalendarEventForm extends SignalWatcher(LitElement) {
     tags.push(...geohashTags)
     // add unique identifier
     tags.push(['d', crypto.randomUUID()])
-    // add start and end timestamps
-    tags.push(['start', values.start.toString()])
-    if (values.end) tags.push(['end', values.end.toString()])
-
-    // add day identifiers
-    const daysSinceEpoch = dayRangeSinceEpoch(
-      values.start,
-      values.end ?? values.start,
-    )
-    const tagsD = daysSinceEpoch.map(d => ['D', d.toString()])
-    tags.push(...tagsD)
 
     // add content
     tags.push(['title', values.title])
-    if (values.summary) tags.push(['summary', values.summary])
+    tags.push(['summary', values.summary])
+    if (values.location) tags.push(['location', values.location])
+
+    const priceTag: string[] = [
+      'price',
+      String(values.amount),
+      values.currency ?? '',
+    ]
+
+    if (values.frequency) priceTag.push(values.frequency)
+
+    tags.push(priceTag)
 
     const event = new NDKEvent(undefined, {
-      kind: 31923,
-      content: values.content ?? '',
+      kind: 30402,
+      content: values.content,
       tags,
     })
 
@@ -96,28 +86,42 @@ export class TadyCreateCalendarEventForm extends SignalWatcher(LitElement) {
     })
     this.dispatchEvent(submitEvent)
   }
-
   render() {
     return html`<form @submit=${this._submit}>
       <wa-input
-        type="datetime-local"
-        name="start"
-        label="start"
-        required
-      ></wa-input>
-      <wa-input type="datetime-local" name="end" label="end"></wa-input>
-      <wa-input
-        type="text"
         name="title"
         label="title"
         placeholder="title"
         required
       ></wa-input>
-      <wa-textarea
+      <wa-input
         name="summary"
         label="summary"
         placeholder="summary"
-      ></wa-textarea>
+        required
+      ></wa-input>
+      <div class="price">
+        <wa-input
+          name="amount"
+          type="number"
+          .withoutSpinButtons=${true}
+          min="0"
+          label="price"
+          placeholder="00"
+        ></wa-input>
+        <wa-input
+          name="currency"
+          type="text"
+          label="currency"
+          placeholder="EUR"
+        ></wa-input>
+        <wa-input
+          name="frequency"
+          type="text"
+          label="per frequency"
+          placeholder="month"
+        ></wa-input>
+      </div>
       <wa-textarea
         name="content"
         label="content"
@@ -127,7 +131,7 @@ export class TadyCreateCalendarEventForm extends SignalWatcher(LitElement) {
         type="text"
         label="location"
         name="location"
-        placeholder="place name, address …"
+        placeholder="place name, approximate address …"
       ></wa-input>
       <geo-select-geohash
         name="geohash"
@@ -145,6 +149,16 @@ export class TadyCreateCalendarEventForm extends SignalWatcher(LitElement) {
       display: flex;
       flex-direction: column;
       gap: 0.75rem;
+
+      .price {
+        display: flex;
+        gap: 0.5rem;
+
+        wa-input {
+          /* flex: 1; */
+          min-width: 0;
+        }
+      }
     }
 
     .actions {

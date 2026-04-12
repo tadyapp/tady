@@ -49,11 +49,14 @@ export class NostrClassifiedListing extends LitElement {
 
     const title = this._getTag('title')?.[1]
     const summary = this._getTag('summary')?.[1]
+    const location = this._getTag('location')?.[1]
     const priceTag = this._getTag('price')
     const price = (() => {
       if (!priceTag) return undefined
       if (priceTag[1] === '0') return 'FREE'
-      return priceTag.slice(1).join(' ')
+      const parts = [priceTag[1], priceTag[2]]
+      if (priceTag[3]) parts.push('per', priceTag[3])
+      return parts.join(' ')
     })()
 
     const categories = this._getTags('t').map(tag => tag[1])
@@ -107,6 +110,10 @@ export class NostrClassifiedListing extends LitElement {
         </div>
 
         <p>${summary}</p>
+
+        ${location
+          ? html`<p><wa-icon name="location-dot"></wa-icon>${location}</p>`
+          : null}
       </div>
     </article>`
   }
